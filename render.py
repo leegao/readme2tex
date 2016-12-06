@@ -81,40 +81,47 @@ def render(readme, output, engine, packages, svgdir, branch):
         content = readme_file.read()
     if not content: raise Exception("Cannot read file.")
 
-    # TODO: git-level hacks here
-    # git stash -q --keep-index
-    check_output(['git', 'stash', '-q', '--keep-index', '--include-untracked'])
+    equations = list(extract_equations(content))
+    seen = set([])
+    equation_map = {}
+    for equation, start, end in equations:
+        if equation in seen: continue
+        seen.add(equation)
+        svg, dvi, name = rendertex(engine, equation, packages, temp_dir)
+        svg = svg.decode('utf-8')
+        equation_map[(start, end)] = (svg, name, dvi)
 
     # git rev-parse --abbrev-ref HEAD
-    old_branch = check_output(['git', 'rev-parse', '--abrev-ref', 'HEAD']).decode('utf-8')
-    if not branch:
-        branch = old_branch
-    try:
-        check_output(['git', 'checkout', branch])
-
+    old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8')
+    if not branch or branch == old_branch:
         if not os.path.exists(svgdir):
             os.makedirs(svgdir)
-
-        equations = list(extract_equations(content))
-        seen = set([])
-        equation_map = {}
         for equation, start, end in equations:
-            if equation in seen: continue
-            seen.add(equation)
-            svg, dvi, name = rendertex(engine, equation, packages, temp_dir)
-            svg = svg.decode('utf-8')
-            equation_map[(start, end)] = (svg, name, dvi)
+            svg, name, dvi = equation_map[(start, end)]
             with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                 file.write(svg)
+    else:
+        # git stash -q --keep-index
+        check_output(['git', 'stash', '-q', '--keep-index', '--include-untracked'])
+        try:
+            check_output(['git', 'checkout', branch])
 
-        check_output(['git', 'checkout', old_branch])
-    except:
-        check_output(['git', 'checkout', '--', '.'])
-        check_output(['git', 'clean', '-df'])
-        check_output(['git', 'checkout', old_branch])
-        pass
-    # git stash pop -q
-    check_output(['git', 'stash', 'pop', '-q'])
+            if not os.path.exists(svgdir):
+                os.makedirs(svgdir)
+            for equation, start, end in equations:
+                svg, name, dvi = equation_map[(start, end)]
+                with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
+                    file.write(svg)
+
+            check_output(['git', 'checkout', old_branch])
+        except Exception as e:
+            print(e)
+            check_output(['git', 'checkout', '--', '.'])
+            check_output(['git', 'clean', '-df'])
+            check_output(['git', 'checkout', old_branch])
+            pass
+        # git stash pop -q
+        check_output(['git', 'stash', 'pop', '-q'])
 
 
 if __name__ == '__main__':
