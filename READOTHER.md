@@ -9,3 +9,5 @@ Make sure that pdflatex is installed.
 \begin{align*}
 Hello
 \end{align*}
+
+Testing $x^2 \int \frac{dy}{y}$
