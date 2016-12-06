@@ -2,6 +2,7 @@ import tempfile
 from subprocess import check_output
 from glob import glob
 import re, os
+import hashlib
 
 envelope = r'''%% processed with readme2tex
 \documentclass{article}
@@ -16,7 +17,7 @@ envelope = r'''%% processed with readme2tex
 def rendertex(engine, string, packages, temp_dir):
     if engine != 'latex': raise Exception("Not Implemented")
     source = envelope % ('\n'.join(r'\usepackage{%s}' % package for package in packages), string)
-    name = '%x' % hash(string)
+    name = hashlib.md5(string.encode('utf-8')).hexdigest()
     source_file = os.path.join(temp_dir, name + '.tex')
     with open(source_file, 'w') as file:
         file.write(source)
@@ -69,7 +70,7 @@ def extract_equations(content):
             yield content[begin: cursor], begin, cursor
 
 
-def render(readme, output, engine, packages, svgdir, branch):
+def render(readme, output, engine, packages, svgdir, branch, user=None, project=None):
     # look for $.$ or $$.$$
     temp_dir = tempfile.mkdtemp('', 'readme2tex-')
     if not readme or not open(readme):
@@ -94,6 +95,7 @@ def render(readme, output, engine, packages, svgdir, branch):
     # git rev-parse --abbrev-ref HEAD
     old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
     if not branch or branch == old_branch:
+        branch = old_branch
         if not os.path.exists(svgdir):
             os.makedirs(svgdir)
         for equation, start, end in equations:
@@ -131,6 +133,29 @@ def render(readme, output, engine, packages, svgdir, branch):
         # git stash pop -q
         check_output(['git', 'stash', 'pop', '-q'])
 
+    # Make replacements
+    if not user or not project:
+        try:
+            # git remote get-url origin
+            giturl = check_output(['git', 'remote', 'get-url', 'origin']).strip().decode('utf-8')
+            start = giturl.find('.com/') + 5
+            userproj = giturl[start:]
+            end = userproj.find('.git')
+            user, project = userproj[:end].split('/')
+        except:
+            raise Exception("Please specify your github --username and --project.")
+    svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+    equations = sorted(equations, key=lambda x: (x[1], x[2]))[::-1]
+    new = content
+    for equation, start, end in equations:
+        svg, name, dvi = equation_map[(start, end)]
+        url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
+        img = '<img src="%s"/>' % url
+        new = new[:start] + img + new[end:]
+    with open(output, 'w') as outfile:
+        outfile.write(new)
+
+
 if __name__ == '__main__':
     import argparse
 
@@ -141,6 +166,8 @@ if __name__ == '__main__':
     parser.add_argument('--packages', type=list, action='append', default=['amsmath', 'amssymb', 'amsfont'])
     parser.add_argument('--svgdir', type=str, default='svgs')
     parser.add_argument('--branch', type=str)
+    parser.add_argument('--username', type=str)
+    parser.add_argument('--project', type=str)
 
     args = parser.parse_args()
-    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch)
+    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch, args.username, args.project)
