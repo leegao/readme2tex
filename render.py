@@ -102,8 +102,10 @@ def render(readme, output, engine, packages, svgdir, branch):
                 file.write(svg)
     else:
         # git stash -q --keep-index
+        print("Stashing changes...")
         check_output(['git', 'stash', '-q', '--keep-index', '--include-untracked'])
         try:
+            print("Checking out %s" % branch)
             check_output(['git', 'checkout', branch])
 
             if not os.path.exists(svgdir):
@@ -113,16 +115,17 @@ def render(readme, output, engine, packages, svgdir, branch):
                 with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                     file.write(svg)
 
+            print("Switching back to the original branch")
             check_output(['git', 'checkout', old_branch])
         except Exception as e:
             print(e)
+            print("Cleaning up.")
             check_output(['git', 'checkout', '--', '.'])
             check_output(['git', 'clean', '-df'])
             check_output(['git', 'checkout', old_branch])
             pass
         # git stash pop -q
         check_output(['git', 'stash', 'pop', '-q'])
-
 
 if __name__ == '__main__':
     import argparse
