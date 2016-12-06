@@ -158,8 +158,8 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         svg, name, dvi = equation_map[(start, end)]
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
-        height = float(attributes['height'][:-2]) * 2.7
-        width = float(attributes['width'][:-2]) * 2.7
+        height = float(attributes['height'][:-2]) * 2
+        width = float(attributes['width'][:-2]) * 2
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
         img = '<img src="%s" valign=middle width=%spt height=%spt/>' % (url, width, height)
         if block: img = '<p align="center">%s</p>' % img
