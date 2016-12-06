@@ -92,7 +92,7 @@ def render(readme, output, engine, packages, svgdir, branch):
         equation_map[(start, end)] = (svg, name, dvi)
 
     # git rev-parse --abbrev-ref HEAD
-    old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8')
+    old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
     if not branch or branch == old_branch:
         if not os.path.exists(svgdir):
             os.makedirs(svgdir)
@@ -114,6 +114,10 @@ def render(readme, output, engine, packages, svgdir, branch):
                 svg, name, dvi = equation_map[(start, end)]
                 with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                     file.write(svg)
+
+            print("Committing changes...")
+            check_output(['git', 'add', svgdir])
+            check_output(['git', 'commit', '-m', 'readme2latex render'])
 
             print("Switching back to the original branch")
             check_output(['git', 'checkout', old_branch])
