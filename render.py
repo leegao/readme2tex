@@ -3,7 +3,6 @@ from subprocess import check_output
 from glob import glob
 import re, os
 
-
 envelope = r'''%% processed with readme2tex
 \documentclass{article}
 %s
@@ -47,13 +46,13 @@ def extract_equations(content):
                 if cursor == -1:
                     cursor = dollar + 1
                     continue
-                yield content[dollar : cursor], dollar, cursor
+                yield content[dollar: cursor], dollar, cursor
             else:
                 cursor = content.find('$', dollar + 1) + 1
                 if cursor == -1:
                     cursor = dollar + 1
                     continue
-                yield content[dollar : cursor], dollar, cursor
+                yield content[dollar: cursor], dollar, cursor
         else:
             leftover = content[begin + 6:]
             if not leftover: break
@@ -67,10 +66,10 @@ def extract_equations(content):
                 cursor = begin + 6
                 continue
             cursor = end + len(end_marker)
-            yield content[begin : cursor], begin, cursor
+            yield content[begin: cursor], begin, cursor
 
 
-def render(readme, output, engine, packages):
+def render(readme, output, engine, packages, svgdir, branch):
     # look for $.$ or $$.$$
     temp_dir = tempfile.mkdtemp('', 'readme2tex-')
     if not readme or not open(readme):
@@ -80,23 +79,54 @@ def render(readme, output, engine, packages):
 
     with open(readme) as readme_file:
         content = readme_file.read()
+    if not content: raise Exception("Cannot read file.")
+
+    # TODO: git-level hacks here
+    # git stash -q --keep-index
+    check_output(['git', 'stash', '-q', '--keep-index', '--include-untracked'])
+
+    # git rev-parse --abbrev-ref HEAD
+    old_branch = check_output(['git', 'rev-parse', '--abrev-ref', 'HEAD']).decode('utf-8')
+    if not branch:
+        branch = old_branch
+    try:
+        check_output(['git', 'checkout', branch])
+
+        if not os.path.exists(svgdir):
+            os.makedirs(svgdir)
+
         equations = list(extract_equations(content))
         seen = set([])
+        equation_map = {}
         for equation, start, end in equations:
             if equation in seen: continue
             seen.add(equation)
             svg, dvi, name = rendertex(engine, equation, packages, temp_dir)
-            print(dvi)
-            print(svg.decode('utf-8'))
-    pass
+            svg = svg.decode('utf-8')
+            equation_map[(start, end)] = (svg, name, dvi)
+            with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
+                file.write(svg)
+
+        check_output(['git', 'checkout', old_branch])
+    except:
+        check_output(['git', 'checkout', '--', '.'])
+        check_output(['git', 'clean', '-df'])
+        check_output(['git', 'checkout', old_branch])
+        pass
+    # git stash pop -q
+    check_output(['git', 'stash', 'pop', '-q'])
+
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser(description='Render LaTeX in Github Readmes')
     parser.add_argument('--readme', type=str)
     parser.add_argument('--engine', type=str, default="latex")
     parser.add_argument('--output', type=str, default="README_GH.md")
     parser.add_argument('--packages', type=list, action='append', default=['amsmath', 'amssymb', 'amsfont'])
+    parser.add_argument('--svgdir', type=str, default='svgs')
+    parser.add_argument('--branch', type=str)
 
     args = parser.parse_args()
-    render(args.readme, args.output, args.engine, args.packages)
+    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch)
