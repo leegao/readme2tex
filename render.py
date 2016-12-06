@@ -47,13 +47,13 @@ def extract_equations(content):
                 if cursor == -1:
                     cursor = dollar + 1
                     continue
-                yield content[dollar: cursor], dollar, cursor
+                yield content[dollar: cursor], dollar, cursor, True
             else:
                 cursor = content.find('$', dollar + 1) + 1
                 if cursor == -1:
                     cursor = dollar + 1
                     continue
-                yield content[dollar: cursor], dollar, cursor
+                yield content[dollar: cursor], dollar, cursor, False
         else:
             leftover = content[begin + 6:]
             if not leftover: break
@@ -67,7 +67,7 @@ def extract_equations(content):
                 cursor = begin + 6
                 continue
             cursor = end + len(end_marker)
-            yield content[begin: cursor], begin, cursor
+            yield content[begin: cursor], begin, cursor, True
 
 
 def render(readme, output, engine, packages, svgdir, branch, user=None, project=None):
@@ -85,7 +85,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     equations = list(extract_equations(content))
     seen = set([])
     equation_map = {}
-    for equation, start, end in equations:
+    for equation, start, end, block in equations:
         if equation in seen: continue
         seen.add(equation)
         svg, dvi, name = rendertex(engine, equation, packages, temp_dir)
@@ -98,7 +98,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         branch = old_branch
         if not os.path.exists(svgdir):
             os.makedirs(svgdir)
-        for equation, start, end in equations:
+        for equation, start, end, _ in equations:
             svg, name, dvi = equation_map[(start, end)]
             with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                 file.write(svg)
@@ -112,7 +112,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
 
             if not os.path.exists(svgdir):
                 os.makedirs(svgdir)
-            for equation, start, end in equations:
+            for equation, start, end, _ in equations:
                 svg, name, dvi = equation_map[(start, end)]
                 with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                     file.write(svg)
@@ -144,13 +144,15 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             user, project = userproj[:end].split('/')
         except:
             raise Exception("Please specify your github --username and --project.")
+
     svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
     equations = sorted(equations, key=lambda x: (x[1], x[2]))[::-1]
     new = content
-    for equation, start, end in equations:
+    for equation, start, end, block in equations:
         svg, name, dvi = equation_map[(start, end)]
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s"/>' % url
+        img = '<img src="%s" %s/>' % (url, 'width=100%' if block else '')
+        if block: img = '<p>%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
         outfile.write(new)
