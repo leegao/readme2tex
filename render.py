@@ -152,7 +152,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         svg, name, dvi = equation_map[(start, end)]
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
         img = '<img src="%s"/>' % (url)
-        if block: img = '<p style="text-align:center">%s</p>' % img
+        if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
         outfile.write(new)
