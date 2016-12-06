@@ -3,6 +3,9 @@ from subprocess import check_output
 from glob import glob
 import re, os
 import hashlib
+import xml.etree.ElementTree as ET
+
+import io
 
 envelope = r'''%% processed with readme2tex
 \documentclass{article}
@@ -153,8 +156,12 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     new = content
     for equation, start, end, block in equations:
         svg, name, dvi = equation_map[(start, end)]
+        xml = (ET.fromstring(svg))
+        attributes = xml.attrib
+        height = float(attributes['height'][:-2]) * 2.7
+        width = float(attributes['width'][:-2]) * 2.7
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" style="vertical-align:middle; height:1.3em;"/>' % (url)
+        img = '<img src="%s" valign=middle width=%spt height=%spt/>' % (url, width, height)
         if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
