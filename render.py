@@ -70,7 +70,7 @@ def extract_equations(content):
             yield content[begin: cursor], begin, cursor, True
 
 
-def render(readme, output, engine, packages, svgdir, branch, user=None, project=None):
+def render(readme, output, engine, packages, svgdir, branch, user=None, project=None, nocdn=False):
     # look for $.$ or $$.$$
     temp_dir = tempfile.mkdtemp('', 'readme2tex-')
     if not readme or not open(readme):
@@ -145,7 +145,10 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         except:
             raise Exception("Please specify your github --username and --project.")
 
-    svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+    if nocdn:
+        svg_url = "https://raw.githubusercontent.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+    else:
+        svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
     equations = sorted(equations, key=lambda x: (x[1], x[2]))[::-1]
     new = content
     for equation, start, end, block in equations:
@@ -170,6 +173,7 @@ if __name__ == '__main__':
     parser.add_argument('--branch', type=str)
     parser.add_argument('--username', type=str)
     parser.add_argument('--project', type=str)
+    parser.add_argument('--nocdn', default=False)
 
     args = parser.parse_args()
-    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch, args.username, args.project)
+    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch, args.username, args.project, args.nocdn)
