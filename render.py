@@ -12,7 +12,8 @@ envelope = r'''%% processed with readme2tex
 %s
 \pagestyle{empty}
 \begin{document}
-%s
+\linespread{1.5}
+a%s
 \end{document}
 '''
 
@@ -93,7 +94,20 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         seen.add(equation)
         svg, dvi, name = rendertex(engine, equation, packages, temp_dir)
         svg = svg.decode('utf-8')
-        equation_map[(start, end)] = (svg, name, dvi)
+
+        xml = (ET.fromstring(svg))
+        attributes = xml.attrib
+        uses = xml.find('{http://www.w3.org/2000/svg}g').findall('{http://www.w3.org/2000/svg}use')
+        use = uses[0]
+        # compute baseline off of this dummy element
+        x = use.attrib['x']
+        y = float(use.attrib['y'])
+        viewBox = [float(a) for a in attributes['viewBox'].split()] # min-x, min-y, width, height
+        baseline_offset = (y - viewBox[1])
+
+        print(baseline_offset, y, attributes)
+
+        equation_map[(start, end)] = (svg, name, dvi, baseline_offset)
 
     # git rev-parse --abbrev-ref HEAD
     old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
@@ -102,7 +116,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         if not os.path.exists(svgdir):
             os.makedirs(svgdir)
         for equation, start, end, _ in equations:
-            svg, name, dvi = equation_map[(start, end)]
+            svg, name, dvi, off = equation_map[(start, end)]
             with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                 file.write(svg)
     else:
@@ -116,7 +130,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             if not os.path.exists(svgdir):
                 os.makedirs(svgdir)
             for equation, start, end, _ in equations:
-                svg, name, dvi = equation_map[(start, end)]
+                svg, name, dvi, off = equation_map[(start, end)]
                 with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                     file.write(svg)
 
@@ -155,13 +169,14 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     equations = sorted(equations, key=lambda x: (x[1], x[2]))[::-1]
     new = content
     for equation, start, end, block in equations:
-        svg, name, dvi = equation_map[(start, end)]
+        svg, name, dvi, off = equation_map[(start, end)]
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
+
         height = float(attributes['height'][:-2]) * 2
         width = float(attributes['width'][:-2]) * 2
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" valign=middle width=%spt height=%spt/>' % (url, width, height)
+        img = '<img src="%s" valign=%spt width=%spt height=%spt/>' % (url, -off, width, height)
         if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
