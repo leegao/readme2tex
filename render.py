@@ -171,7 +171,10 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             check_output(['git', 'checkout', old_branch])
             pass
         # git stash pop -q
-        check_output(['git', 'stash', 'pop', '-q'])
+        try:
+            check_output(['git', 'stash', 'pop', '-q'])
+        except:
+            pass
 
     # Make replacements
     if not user or not project:
