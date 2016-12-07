@@ -5,14 +5,13 @@ import re, os
 import hashlib
 import xml.etree.ElementTree as ET
 
-import io
+import sys
 
 envelope = r'''%% processed with readme2tex
 \documentclass{article}
 %s
 \pagestyle{empty}
 \begin{document}
-\linespread{1.5}
 %s%s
 \end{document}
 '''
@@ -25,9 +24,13 @@ def rendertex(engine, string, packages, temp_dir, block):
     source_file = os.path.join(temp_dir, name + '.tex')
     with open(source_file, 'w') as file:
         file.write(source)
-    check_output(
-        [engine, '-output-directory=' + temp_dir, '-halt-on-error', source_file],
-        input=source.encode('utf-8'))
+
+    try:
+        check_output(
+            [engine, '-output-directory=' + temp_dir, '-interaction', 'nonstopmode', source_file],
+            stderr=sys.stdout)
+    except:
+        print("'%s' has warnings during compilation." % string)
     dvi = os.path.join(temp_dir, name + '.dvi')
     svg = check_output(
         ['dvisvgm', '-v0', '-a', '-n', '-s', dvi])
@@ -87,11 +90,13 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     if not content: raise Exception("Cannot read file.")
 
     equations = list(extract_equations(content))
-    seen = set([])
     equation_map = {}
+    seen = {}
     for equation, start, end, block in equations:
-        if equation in seen: continue
-        seen.add(equation)
+        if equation in seen:
+            equation_map[(start, end)] = equation_map[seen[equation]]
+            continue
+        seen[equation] = (start, end)
         svg, dvi, name = rendertex(engine, equation, packages, temp_dir, block)
         svg = svg.decode('utf-8')
 
@@ -101,14 +106,12 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             uses = xml.find('{http://www.w3.org/2000/svg}g').findall('{http://www.w3.org/2000/svg}use')
             use = uses[0]
             # compute baseline off of this dummy element
-            x = use.attrib['x']
             y = float(use.attrib['y'])
             viewBox = [float(a) for a in attributes['viewBox'].split()] # min-x, min-y, width, height
             baseline_offset = viewBox[-1] - (y - viewBox[1])
             newViewBox = list(viewBox)
             newViewBox[0] = float(uses[1].attrib['x'])
             newViewBox[-2] = viewBox[-2] - abs(newViewBox[0] - viewBox[0])
-            print(newViewBox, viewBox)
             xml.set('viewBox', ' '.join(map(str, newViewBox)))
             xml.set('width', str(newViewBox[-2]) + 'pt')
             svg = ET.tostring(xml).decode('utf-8')
@@ -199,7 +202,7 @@ if __name__ == '__main__':
     parser.add_argument('--readme', type=str)
     parser.add_argument('--engine', type=str, default="latex")
     parser.add_argument('--output', type=str, default="README_GH.md")
-    parser.add_argument('--packages', type=list, action='append', default=['amsmath', 'amssymb', 'amsfont'])
+    parser.add_argument('--packages', type=list, action='append', default=['amsmath', 'amssymb'])
     parser.add_argument('--svgdir', type=str, default='svgs')
     parser.add_argument('--branch', type=str)
     parser.add_argument('--username', type=str)
