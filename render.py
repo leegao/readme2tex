@@ -170,13 +170,14 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     new = content
     for equation, start, end, block in equations:
         svg, name, dvi, off = equation_map[(start, end)]
+        if abs(off) < 1e-2: off = 0
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
 
         height = float(attributes['height'][:-2]) * 2
         width = float(attributes['width'][:-2]) * 2
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" valign=%spt width=%spt height=%spt/>' % (url, -off * 2, width, height)
+        img = '<img src="%s" valign=%spx width=%spt height=%spt/>' % (url, -off * 2, width, height)
         if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
