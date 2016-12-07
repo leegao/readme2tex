@@ -13,13 +13,34 @@ replaces anything enclosed between dollar signs with rendered $\text{\LaTeX}$.
 In addition, unlike the other Github texifiers, `readme2tex` ensures that inline mathematical expressions
 are properly aligned with the rest of the text to avoid giving a "jumpy" look to the document.
 
-## Installation
+### Examples:
+
+Here's a display level equation
+$$
+\frac{n!}{k!(n-k)!} = {n \choose k}
+$$
+
+which looks like
+
+    $$
+    \frac{n!}{k!(n-k)!} = {n \choose k}
+    $$
+
+In addition, you can escape \$ so that they don't render.
+
+Here's an inline equation. It is well know that if $ax^2 + bx + c = 0$, then $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$.
+
+    Here's an inline equation. It is well know that if $ax^2 + bx + c = 0$, then $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$.
+
+Notice that the equations line up with the baseline of the text, even when the height of these two images are different.
+
+### Installation
 
 Currently, you just need to have `render.py` on your path, and you can call
 
 ### Usage
 
-# render.py --output README.md
+    render.py --output README.md
 
 It will then look for a file called `readother.md` and compile it down to a readable Github-ready
 document.

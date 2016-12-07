@@ -40,24 +40,36 @@ def rendertex(engine, string, packages, temp_dir, block):
 def extract_equations(content):
     next = lambda n: (content.find('$', n), content.find(r'\begin', n))
     cursor = 0
+    lines = [line for line in content.splitlines()]
     while True:
         dollar, begin = next(cursor)
-        if dollar is -1 and begin is -1: break
-        if (dollar < begin or begin == -1) and dollar is not -1:
+        if dollar is -1: dollar = '-1'
+        if begin is -1: begin = '-1'
+        if dollar == '-1' and begin == '-1': break
+        if dollar != '-1' and (begin == '-1' or dollar < begin):
             # found a $, see if it's $$
             if dollar > 0 and content[dollar - 1] == '\\':
                 cursor = dollar + 1
                 continue
+            # get this line
+            cummulative = 0
+            line = 0
+            for line, string in enumerate(lines):
+                cummulative += len(string) + 1
+                if dollar < cummulative: break
+            if lines[line].startswith('  '):
+                cursor = dollar + 2
+                continue
             if len(content) > dollar and content[dollar + 1] == '$':
                 ## find the next $$
                 cursor = content.find('$$', dollar + 2) + 2
-                if cursor == -1:
+                if cursor == 1:
                     cursor = dollar + 1
                     continue
                 yield content[dollar: cursor], dollar, cursor, True
             else:
                 cursor = content.find('$', dollar + 1) + 1
-                if cursor == -1:
+                if cursor == 0:
                     cursor = dollar + 1
                     continue
                 yield content[dollar: cursor], dollar, cursor, False
