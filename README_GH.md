@@ -1,10 +1,10 @@
 # readme2tex
 Renders TeXy Math for Github Readmes
 
-<p align="center"><img src="https://rawgit.com/leegao/readme2tex/master/svgs/010208120712d10736ce1538c65cea64.svg" valign=-23.910399999999996px width=380.698pt height=32.4572pt/></p>
+<p align="center"><img src="https://rawgit.com/leegao/readme2tex/master/svgs/010208120712d10736ce1538c65cea64.svg" valign=0px width=134.1614pt height=17.18192pt/></p>
 
 Make sure that pdflatex is installed.
-<p align="center"><img src="https://rawgit.com/leegao/readme2tex/master/svgs/68f54940fab28a56a92825fdd2858e01.svg" valign=-43.83579999999999px width=338.542pt height=52.3826pt/></p>
+<p align="center"><img src="https://rawgit.com/leegao/readme2tex/master/svgs/68f54940fab28a56a92825fdd2858e01.svg" valign=0px width=49.6154pt height=13.7853pt/></p>
 
 Testing <img src="https://rawgit.com/leegao/readme2tex/master/svgs/95c12626cfd2b3a373ef42123ae3e510.svg" valign=-9.57299999999999px width=69.4016pt height=28.1114pt/>
 

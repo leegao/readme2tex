@@ -13,14 +13,14 @@ envelope = r'''%% processed with readme2tex
 \pagestyle{empty}
 \begin{document}
 \linespread{1.5}
-a%s
+%s%s
 \end{document}
 '''
 
 
-def rendertex(engine, string, packages, temp_dir):
+def rendertex(engine, string, packages, temp_dir, block):
     if engine != 'latex': raise Exception("Not Implemented")
-    source = envelope % ('\n'.join(r'\usepackage{%s}' % package for package in packages), string)
+    source = envelope % ('\n'.join(r'\usepackage{%s}' % package for package in packages), 'a' if not block else '', string)
     name = hashlib.md5(string.encode('utf-8')).hexdigest()
     source_file = os.path.join(temp_dir, name + '.tex')
     with open(source_file, 'w') as file:
@@ -92,20 +92,27 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     for equation, start, end, block in equations:
         if equation in seen: continue
         seen.add(equation)
-        svg, dvi, name = rendertex(engine, equation, packages, temp_dir)
+        svg, dvi, name = rendertex(engine, equation, packages, temp_dir, block)
         svg = svg.decode('utf-8')
 
-        xml = (ET.fromstring(svg))
-        attributes = xml.attrib
-        uses = xml.find('{http://www.w3.org/2000/svg}g').findall('{http://www.w3.org/2000/svg}use')
-        use = uses[0]
-        # compute baseline off of this dummy element
-        x = use.attrib['x']
-        y = float(use.attrib['y'])
-        viewBox = [float(a) for a in attributes['viewBox'].split()] # min-x, min-y, width, height
-        baseline_offset = viewBox[-1] - (y - viewBox[1])
-
-        print(baseline_offset, y, attributes)
+        if not block:
+            xml = (ET.fromstring(svg))
+            attributes = xml.attrib
+            uses = xml.find('{http://www.w3.org/2000/svg}g').findall('{http://www.w3.org/2000/svg}use')
+            use = uses[0]
+            # compute baseline off of this dummy element
+            x = use.attrib['x']
+            y = float(use.attrib['y'])
+            viewBox = [float(a) for a in attributes['viewBox'].split()] # min-x, min-y, width, height
+            baseline_offset = viewBox[-1] - (y - viewBox[1])
+            newViewBox = list(viewBox)
+            newViewBox[0] = float(uses[1].attrib['x'])
+            newViewBox[-2] = viewBox[-2] - abs(newViewBox[0] - viewBox[0])
+            print(newViewBox, viewBox)
+            xml.set('viewBox', ' '.join(map(str, newViewBox)))
+            xml.set('width', str(newViewBox[-2]) + 'pt')
+        else:
+            baseline_offset = 0
 
         equation_map[(start, end)] = (svg, name, dvi, baseline_offset)
 
@@ -163,7 +170,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             raise Exception("Please specify your github --username and --project.")
 
     if nocdn:
-        svg_url = "https://raw.githubusercontent.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+        svg_url = "{svgdir}/{name}.svg"
     else:
         svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
     equations = sorted(equations, key=lambda x: (x[1], x[2]))[::-1]
