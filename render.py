@@ -111,6 +111,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             print(newViewBox, viewBox)
             xml.set('viewBox', ' '.join(map(str, newViewBox)))
             xml.set('width', str(newViewBox[-2]) + 'pt')
+            svg = ET.tostring(xml).decode('utf-8')
         else:
             baseline_offset = 0
 
