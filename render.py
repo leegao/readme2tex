@@ -200,10 +200,10 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
 
-        height = float(attributes['height'][:-2]) * 2
-        width = float(attributes['width'][:-2]) * 2
+        height = float(attributes['height'][:-2]) * 1.8
+        width = float(attributes['width'][:-2]) * 1.8
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" valign=%spx width=%spt height=%spt/>' % (url, -off * 2, width, height)
+        img = '<img src="%s" valign=%spx width=%spt height=%spt/>' % (url, -off * 1.8, width, height)
         if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
