@@ -103,7 +103,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         x = use.attrib['x']
         y = float(use.attrib['y'])
         viewBox = [float(a) for a in attributes['viewBox'].split()] # min-x, min-y, width, height
-        baseline_offset = (y - viewBox[1])
+        baseline_offset = viewBox[-1] - (y - viewBox[1])
 
         print(baseline_offset, y, attributes)
 
@@ -176,7 +176,7 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         height = float(attributes['height'][:-2]) * 2
         width = float(attributes['width'][:-2]) * 2
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" valign=%spt width=%spt height=%spt/>' % (url, -off, width, height)
+        img = '<img src="%s" valign=%spt width=%spt height=%spt/>' % (url, -off * 2, width, height)
         if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
