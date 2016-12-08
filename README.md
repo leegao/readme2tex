@@ -3,7 +3,7 @@ Renders LaTeX for Github Readmes
 
 <p align="center"><img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/d27ecd9d6334c7a020001926c8000801.svg" align=middle width=174.20741999999998pt height=33.73722pt/></p>
 
-<sub>*Make sure that pdflatex is installed.*</sub>
+<sub>**Make sure that pdflatex is installed.**</sub>
 
 ----------------------------------------
 
@@ -41,7 +41,7 @@ can compute the correct offset to align this equation to the baseline of your pa
 
 ### Installation
 
-Currently, you just need to have `readme2tex` on your python-path, and you can call
+    sudo pip install readme2tex
 
 ### Usage
 

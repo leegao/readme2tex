@@ -5,7 +5,7 @@ $$
 \huge\text{Hello \LaTeX}
 $$
 
-<sub>*Make sure that pdflatex is installed.*</sub>
+<sub>**Make sure that pdflatex is installed.**</sub>
 
 ----------------------------------------
 
@@ -45,7 +45,7 @@ can compute the correct offset to align this equation to the baseline of your pa
 
 ### Installation
 
-Currently, you just need to have `readme2tex` on your python-path, and you can call
+    sudo pip install readme2tex
 
 ### Usage
 
