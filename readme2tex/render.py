@@ -136,10 +136,12 @@ def render(
         svg, dvi, name = rendertex(engine, equation, packages, temp_dir, block)
         svg = svg.decode('utf-8')
 
+        xml = (ET.fromstring(svg))
+        attributes = xml.attrib
+        gfill = xml.find('{http://www.w3.org/2000/svg}g')
+        gfill.set('fill-opacity', '0.9')
         if not block:
-            xml = (ET.fromstring(svg))
-            attributes = xml.attrib
-            uses = xml.find('{http://www.w3.org/2000/svg}g').findall('{http://www.w3.org/2000/svg}use')
+            uses = gfill.findall('{http://www.w3.org/2000/svg}use')
             use = uses[0]
             # compute baseline off of this dummy element
             x = use.attrib['x']
@@ -152,7 +154,7 @@ def render(
             newViewBox[-2] -= abs(newViewBox[0] - viewBox[0])
             xml.set('viewBox', ' '.join(map(str, newViewBox)))
             xml.set('width', str(newViewBox[-2]) + 'pt')
-            xml.find('{http://www.w3.org/2000/svg}g').remove(use)
+            gfill.remove(use)
             top = y - newViewBox[1]
             bottom = baseline_offset
             if not use_valign:
@@ -170,9 +172,10 @@ def render(
                     newViewBox[1] -= (height - bottom - top)
                     xml.set('viewBox', ' '.join(map(str, newViewBox)))
                     pass
-            svg = ET.tostring(xml).decode('utf-8')
         else:
             baseline_offset = 0
+
+        svg = ET.tostring(xml).decode('utf-8')
 
         equation_map[(start, end)] = (svg, name, dvi, baseline_offset)
 
@@ -244,12 +247,16 @@ def render(
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
 
-        height = float(attributes['height'][:-2]) * 1.8
-        width = float(attributes['width'][:-2]) * 1.8
+        needs_inversion = not (equation.count('tikzpicture') and equation.count('fill='))
+
+        scale = 1.65
+        height = float(attributes['height'][:-2]) * scale
+        width = float(attributes['width'][:-2]) * scale
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" %s width=%spt height=%spt/>' % (
+        img = '<img src="%s%s" %s width=%spt height=%spt/>' % (
             url,
-            ('valign=%spx'%(-off * 1.8) if use_valign else 'align=middle'),
+            '?invert_in_darkmode' if needs_inversion else '',
+            ('valign=%spx'%(-off * scale) if use_valign else 'align=middle'),
             width,
             height)
         if block: img = '<p align="center">%s</p>' % img
