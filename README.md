@@ -28,7 +28,7 @@ The code that was used to render this equation is just
 
 Here's an inline equation. 
 
-> It is well known that if <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/15b9e78f3a7cb11ea59b95c9553fb928.svg" align=middle width=129.83094pt height=29.134080000000015pt/>, then <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/2b1f70f6a49aea806b0a5f021e843447.svg" align=middle width=122.57262pt height=36.22391999999999pt/>.
+> It is well known that if <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/162f63774d8a882cc15ae1301cfd8ac0.svg" align=middle width=129.83094pt height=29.134080000000015pt/>, then <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/584fa2612b78129d140fb208e9d76ae9.svg" align=middle width=122.57262pt height=36.22391999999999pt/>.
 
 The code that was used to render this is:
 
