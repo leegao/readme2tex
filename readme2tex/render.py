@@ -20,7 +20,7 @@ envelope = r'''%% processed with readme2tex
 
 def rendertex(engine, string, packages, temp_dir, block):
     if engine != 'latex': raise Exception("Not Implemented")
-    source = envelope % ('\n'.join(r'\usepackage{%s}' % package for package in packages), 'a' if not block else '', string)
+    source = envelope % ('\n'.join(r'\usepackage{%s}' % ''.join(package) for package in packages), 'a' if not block else '', string)
     name = hashlib.md5(string.encode('utf-8')).hexdigest()
     source_file = os.path.join(temp_dir, name + '.tex')
     with open(source_file, 'w') as file:
@@ -31,7 +31,7 @@ def rendertex(engine, string, packages, temp_dir, block):
             [engine, '-output-directory=' + temp_dir, '-interaction', 'nonstopmode', source_file],
             stderr=sys.stdout)
     except:
-        print("'%s' has warnings during compilation." % string)
+        print("'%s' has warnings during compilation. See %s/%s" % (string, temp_dir, name))
     dvi = os.path.join(temp_dir, name + '.dvi')
     svg = check_output(
         ['dvisvgm', '-v0', '-a', '-n', '-s', dvi])
@@ -75,6 +75,14 @@ def extract_equations(content):
                     continue
                 yield content[dollar: cursor], dollar, cursor, False
         else:
+            cummulative = 0
+            line = 0
+            for line, string in enumerate(lines):
+                cummulative += len(string) + 1
+                if begin < cummulative: break
+            if lines[line].startswith('  '):
+                cursor = begin + 6
+                continue
             leftover = content[begin + 6:]
             if not leftover: break
             match = re.match(r"\{.+?\}", leftover)
