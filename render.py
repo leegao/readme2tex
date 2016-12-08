@@ -6,8 +6,6 @@ from glob import glob
 import re, os
 import hashlib
 import xml.etree.ElementTree as ET
-import markdown
-
 import sys
 
 envelope = r'''%% processed with readme2tex
@@ -240,6 +238,11 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         outfile.write(new)
 
     if htmlize:
+        try:
+            import markdown
+        except:
+            print("Cannot render markdown, make sure that the markdown package is installed.")
+            return
         with open(output+".html", 'w') as outfile:
             outfile.write(markdown.markdown(new))
 
