@@ -17,6 +17,11 @@ envelope = r'''%% processed with readme2tex
 \end{document}
 '''
 
+try:
+    input = raw_input
+except NameError:
+    pass
+
 
 def rendertex(engine, string, packages, temp_dir, block):
     if engine != 'latex': raise Exception("Not Implemented")
@@ -197,8 +202,16 @@ def render(
                 file.write(svg)
     else:
         # git stash -q --keep-index
+        stashed = False
         if check_output(['git', 'status', '-s']).decode('utf-8').strip():
-            raise Exception("Cannot switch to a different branch while there are items for staging.")
+            if input(
+                    "There are unstaged files, would you like to stash them? "
+                    "(They will be automatically unstashed.) [(y)/n]").lower().startswith('n'):
+                print("Aborting.")
+                return
+            print("Stashing...")
+            check_output(['git', 'stash', '-q', '-u', '--keep-index'])
+            stashed = True
         try:
             print("Checking out %s" % branch)
             check_output(['git', 'checkout', branch])
@@ -225,6 +238,10 @@ def render(
             check_output(['git', 'checkout', '--', '.'])
             check_output(['git', 'clean', '-df'])
             check_output(['git', 'checkout', old_branch])
+
+        if stashed:
+            print("Unstashing...")
+            check_output(['git', 'stash', 'pop', '-q'])
 
     # Make replacements
     if not user or not project:
