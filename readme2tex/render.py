@@ -90,7 +90,18 @@ def extract_equations(content):
             yield content[begin: cursor], begin, cursor, True
 
 
-def render(readme, output, engine, packages, svgdir, branch, user=None, project=None, nocdn=False, htmlize=False, use_valign=False):
+def render(
+        readme=None,
+        output='README_GH.md',
+        engine='latex',
+        packages=('amsmath', 'amssymb'),
+        svgdir='svgs',
+        branch=None,
+        user=None,
+        project=None,
+        nocdn=False,
+        htmlize=False,
+        use_valign=False):
     # look for $.$ or $$.$$
     if htmlize:
         nocdn = True
