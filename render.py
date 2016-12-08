@@ -227,9 +227,9 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         height = float(attributes['height'][:-2]) * 1.8
         width = float(attributes['width'][:-2]) * 1.8
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" align=middle %s width=%spt height=%spt/>' % (
+        img = '<img src="%s" %s width=%spt height=%spt/>' % (
             url,
-            ('valign=%spx'%(-off * 1.8) if use_valign else ''),
+            ('valign=%spx'%(-off * 1.8) if use_valign else 'align=middle'),
             width,
             height)
         if block: img = '<p align="center">%s</p>' % img
