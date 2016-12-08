@@ -115,6 +115,7 @@ def render(
     with open(readme) as readme_file:
         content = readme_file.read()
     if not content: raise Exception("Cannot read file.")
+    content = content.replace('\r', '')
 
     equations = list(extract_equations(content))
     equation_map = {}
@@ -215,7 +216,7 @@ def render(
     if not user or not project:
         try:
             # git remote get-url origin
-            giturl = check_output(['git', 'remote', 'get-url', 'origin']).strip().decode('utf-8')
+            giturl = check_output(['git', 'remote', '-v']).strip().decode('utf-8').splitlines()[0]
             start = giturl.find('.com/') + 5
             userproj = giturl[start:]
             end = userproj.find('.git')
