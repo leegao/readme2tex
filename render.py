@@ -4,6 +4,7 @@ from glob import glob
 import re, os
 import hashlib
 import xml.etree.ElementTree as ET
+import markdown
 
 import sys
 
@@ -89,8 +90,11 @@ def extract_equations(content):
             yield content[begin: cursor], begin, cursor, True
 
 
-def render(readme, output, engine, packages, svgdir, branch, user=None, project=None, nocdn=False):
+def render(readme, output, engine, packages, svgdir, branch, user=None, project=None, nocdn=False, htmlize=False, use_valign=False):
     # look for $.$ or $$.$$
+    if htmlize:
+        nocdn = True
+        branch = None
     temp_dir = tempfile.mkdtemp('', 'readme2tex-')
     if not readme or not open(readme):
         md_files = [file for file in glob("*.md") if file.lower() == 'readother.md']
@@ -118,14 +122,34 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
             uses = xml.find('{http://www.w3.org/2000/svg}g').findall('{http://www.w3.org/2000/svg}use')
             use = uses[0]
             # compute baseline off of this dummy element
+            x = use.attrib['x']
             y = float(use.attrib['y'])
             viewBox = [float(a) for a in attributes['viewBox'].split()] # min-x, min-y, width, height
             baseline_offset = viewBox[-1] - (y - viewBox[1])
             newViewBox = list(viewBox)
-            newViewBox[0] = float(uses[1].attrib['x'])
-            newViewBox[-2] = viewBox[-2] - abs(newViewBox[0] - viewBox[0])
+
+            newViewBox[0] = min(list(float(next.attrib['x']) for next in uses if next.attrib['x'] != x) or [float(x)])
+            newViewBox[-2] -= abs(newViewBox[0] - viewBox[0])
             xml.set('viewBox', ' '.join(map(str, newViewBox)))
             xml.set('width', str(newViewBox[-2]) + 'pt')
+            xml.find('{http://www.w3.org/2000/svg}g').remove(use)
+            top = y - newViewBox[1]
+            bottom = baseline_offset
+            if not use_valign:
+                if top > bottom:
+                    # extend the bottom
+                    height = 2 * top
+                    xml.set('height', '%spt' % (height))
+                    newViewBox[-1] = height
+                    xml.set('viewBox', ' '.join(map(str, newViewBox)))
+                else:
+                    # extend the top
+                    height = 2 * bottom
+                    xml.set('height', '%spt' % (height))
+                    newViewBox[-1] = height
+                    newViewBox[1] -= (height - bottom - top)
+                    xml.set('viewBox', ' '.join(map(str, newViewBox)))
+                    pass
             svg = ET.tostring(xml).decode('utf-8')
         else:
             baseline_offset = 0
@@ -203,11 +227,18 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
         height = float(attributes['height'][:-2]) * 1.8
         width = float(attributes['width'][:-2]) * 1.8
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
-        img = '<img src="%s" valign=%spx width=%spt height=%spt/>' % (url, -off * 1.8, width, height)
+        img = '<img src="%s" align=middle %s width=%spt height=%spt/>' % (
+            url,
+            ('valign=%spx'%(-off * 1.8) if use_valign else ''),
+            width,
+            height)
         if block: img = '<p align="center">%s</p>' % img
         new = new[:start] + img + new[end:]
     with open(output, 'w') as outfile:
         outfile.write(new)
+
+    with open(output+".html", 'w') as outfile:
+        outfile.write(markdown.markdown(new))
 
 
 if __name__ == '__main__':
@@ -223,6 +254,8 @@ if __name__ == '__main__':
     parser.add_argument('--username', type=str)
     parser.add_argument('--project', type=str)
     parser.add_argument('--nocdn', default=False)
+    parser.add_argument('--htmlize', default=False, type=bool)
+    parser.add_argument('--valign', default=False)
 
     args = parser.parse_args()
-    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch, args.username, args.project, args.nocdn)
+    render(args.readme, args.output, args.engine, args.packages, args.svgdir, args.branch, args.username, args.project, args.nocdn, args.htmlize, args.valign)
