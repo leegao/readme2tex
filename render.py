@@ -237,8 +237,9 @@ def render(readme, output, engine, packages, svgdir, branch, user=None, project=
     with open(output, 'w') as outfile:
         outfile.write(new)
 
-    with open(output+".html", 'w') as outfile:
-        outfile.write(markdown.markdown(new))
+    if htmlize:
+        with open(output+".html", 'w') as outfile:
+            outfile.write(markdown.markdown(new))
 
 
 if __name__ == '__main__':
