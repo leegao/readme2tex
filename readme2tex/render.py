@@ -194,8 +194,8 @@ def render(
                 file.write(svg)
     else:
         # git stash -q --keep-index
-        print("Stashing changes...")
-        check_output(['git', 'stash', '-q', '--keep-index', '--include-untracked'])
+        if check_output(['git', 'status', '-s']).decode('utf-8').strip():
+            raise Exception("Cannot switch to a different branch while there are items for staging.")
         try:
             print("Checking out %s" % branch)
             check_output(['git', 'checkout', branch])
@@ -219,12 +219,6 @@ def render(
             check_output(['git', 'checkout', '--', '.'])
             check_output(['git', 'clean', '-df'])
             check_output(['git', 'checkout', old_branch])
-            pass
-        # git stash pop -q
-        try:
-            check_output(['git', 'stash', 'pop', '-q'])
-        except:
-            pass
 
     # Make replacements
     if not user or not project:
