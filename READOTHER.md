@@ -229,6 +229,12 @@ In addition, you can specify other arguments to `render.py`, such as:
 * `--htmlize False` Ticking this will output a `X.md.html` file so you can preview what the output looks like. Defaults to False.
 * `--valign False` Ticking this will use the `valign` trick (detailed below) instead. See the caveats section for tradeoffs.
 
+My usual workflow is to create a secondary branch just for the compiled svgs. You can accomplish this via
+
+    python -m readme2tex --branch svgs --output README.md
+
+However, be careful with this command, since it will switch over to the `svgs` branch without any input from you.
+
 ### Technical Tricks
 
 #### How can you tell where the baseline of an image is?
@@ -254,3 +260,7 @@ baseline of the equation is at the center. For most equations, this works great.
 like $\frac{~}{\sum\limits_{x^{x^{x^{x}}}}^{x^{x^{x^{x}}}} f(x)}$, you'll notice that there might be a lot
 of slack vertical spacing between these lines. If this is a deal-breaker for you, you can always try the `--valign True`
 mode. For most inline equations, this is usually a non-issue.
+
+#### How to compile this document
+
+    python -m readme2tex --packages "tikz" --packages "xcolor" --output README.md --branch svgs
