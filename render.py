@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import tempfile
 from subprocess import check_output
 from glob import glob
