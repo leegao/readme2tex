@@ -210,9 +210,12 @@ def render(
                 with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                     file.write(svg)
 
-            print("Committing changes...")
-            check_output(['git', 'add', svgdir])
-            check_output(['git', 'commit', '-m', 'readme2latex render'])
+            if check_output(['git', 'status', '-s']).decode('utf-8').strip():
+                print("Committing changes...")
+                check_output(['git', 'add', svgdir])
+                check_output(['git', 'commit', '-m', 'readme2latex render'])
+            else:
+                print("No changes were made.")
 
             print("Switching back to the original branch")
             check_output(['git', 'checkout', old_branch])
