@@ -169,7 +169,13 @@ def render(
         equation_map[(start, end)] = (svg, name, dvi, baseline_offset)
 
     # git rev-parse --abbrev-ref HEAD
-    old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
+    try:
+        old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
+    except:
+        if not nocdn:
+            print("Not in a git repository, please enable --nocdn")
+        old_branch = "NONE"
+
     if not branch or branch == old_branch:
         branch = old_branch
         if not os.path.exists(svgdir):
