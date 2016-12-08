@@ -17,7 +17,7 @@ if __name__.endswith('__main__'):
     parser.add_argument('--valign', default=False)
 
     args = parser.parse_args()
-    render.render(
+    render(
         args.readme,
         args.output,
         args.engine,
