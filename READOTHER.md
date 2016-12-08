@@ -45,11 +45,11 @@ can compute the correct offset to align this equation to the baseline of your pa
 
 ### Installation
 
-Currently, you just need to have `render.py` on your path, and you can call
+Currently, you just need to have `readme2tex` on your python-path, and you can call
 
 ### Usage
 
-    render.py --output README.md
+    python -m readme2tex --output README.md
 
 It will then look for a file called `readother.md` and compile it down to a readable Github-ready
 document.
