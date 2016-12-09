@@ -5,7 +5,7 @@ Renders LaTeX for Github Readmes
 
 <p align="center"><img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/a00f34be6b1ce8e4820c9852c5e6163e.svg" align=middle width=281.2953pt height=243.69345pt/></p>
 
-<sub>**Make sure that pdflatex is installed.**</sub>
+<sub>**Make sure that pdflatex is installed on your system.**</sub>
 
 ----------------------------------------
 
@@ -17,11 +17,35 @@ are properly aligned with the rest of the text to avoid giving a "jumpy" look to
 
 ### Installation
 
+Make sure that you have Python 2.7 or above and `pip` installed. In addition, you'll need to have the programs `latex` 
+and `dvisvgm` on your `PATH`.
+
+To install `readme2tex`, you'll need to run
+
     sudo pip install readme2tex
 
-followed by
+To compile `INPUT.md` and render all of its equations, run
 
-    python -m readme2tex --readme preprocessed.md --output README.md
+    python -m readme2tex --output README.md INPUT.md
+    
+If you want to do this automatically for every commit of INPUT.md, you can use the `--add-git-hook` command once to
+set up the post-commit hook, like so
+
+    git stash --include-untracked
+    git branch svgs # if this isn't already there
+    
+    python -m readme2tex --output README.md --branch svgs --usepackage tikz INPUT.md --add-git-hook
+    
+    # modify INPUT.md
+    
+    git add INPUT.md
+    git commit -a -m "updated readme"
+
+and every `git commit` that touches `INPUT.md` from now on will allow you to automatically run `readme2tex` on it, saving
+you from having to remember how `readme2tex` works.
+
+You can uninstall the hook by deleting `.git/hooks/post-commit`. See `python -m readme2tex --help` for a list
+of what you can do in `readme2tex`.
 
 ### Examples:
 
@@ -87,7 +111,7 @@ How about a few snowflakes?
 
 ### Usage
 
-    python -m readme2tex --output README.md
+    python -m readme2tex --output README.md [READOTHER.md]
 
 It will then look for a file called `readother.md` and compile it down to a readable Github-ready
 document.
@@ -143,4 +167,4 @@ mode. For most inline equations, this is usually a non-issue.
 
 #### How to compile this document
 
-    python -m readme2tex --packages "tikz" --packages "xcolor" --output README.md --branch svgs
+    python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch svgs
