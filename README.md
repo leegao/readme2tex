@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # readme2tex
 Renders LaTeX for Github Readmes
 
@@ -352,4 +351,3 @@ mode. For most inline equations, this is usually a non-issue.
 and of course
 
     python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch svgs --add-git-hook
->>>>>>> Stashed changes
