@@ -67,6 +67,8 @@ you from having to remember how `readme2tex` works. The caveat is that if you us
 might get a bit wonky. In particular, `readme2tex` will just assume that you're fine with all of the changes and won't
 prompt you for verification like it does on the terminal.
 
+[![asciicast](https://asciinema.org/a/2am62r2x2udg1zqyb6r3kpm1i.png)](https://asciinema.org/a/2am62r2x2udg1zqyb6r3kpm1i)
+
 You can uninstall the hook by deleting `.git/hooks/post-commit`. See `python -m readme2tex --help` for a list
 of what you can do in `readme2tex`.
 
