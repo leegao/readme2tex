@@ -16,6 +16,7 @@ if __name__.endswith('__main__'):
     parser.add_argument('--htmlize', default=False, type=bool)
     parser.add_argument('--valign', default=False)
     parser.add_argument('--rerender', default=False)
+    parser.add_argument('--bustcache', default=False)
 
     args = parser.parse_args()
     render(
@@ -30,4 +31,5 @@ if __name__.endswith('__main__'):
         args.nocdn,
         args.htmlize,
         args.valign,
-        args.rerender)
+        args.rerender,
+        args.bustcache)

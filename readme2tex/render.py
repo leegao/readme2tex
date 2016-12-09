@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import random
 import tempfile
 from subprocess import check_output
 from glob import glob
@@ -115,7 +115,8 @@ def render(
         nocdn=False,
         htmlize=False,
         use_valign=False,
-        rerender=False):
+        rerender=False,
+        bustcache=False):
     # look for $.$ or $$.$$
     if htmlize:
         nocdn = True
@@ -301,9 +302,14 @@ def render(
         height = float(attributes['height'][:-2]) * scale
         width = float(attributes['width'][:-2]) * scale
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
+        tail = []
+        if bustcache:
+            tail.append('%x' % random.randint(0, 1e12))
+        if needs_inversion:
+            tail.append('invert_in_darkmode')
         img = '<img src="%s%s" %s width=%spt height=%spt/>' % (
             url,
-            '?invert_in_darkmode' if needs_inversion else '',
+            '?%s' % ('&'.join(tail)) if tail else '',
             ('valign=%spx'%(-off * scale) if use_valign else 'align=middle'),
             width,
             height)
