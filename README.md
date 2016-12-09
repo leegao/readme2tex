@@ -40,9 +40,13 @@ set up the post-commit hook, like so
     
     git add INPUT.md
     git commit -a -m "updated readme"
+    
+    git stash pop
 
 and every `git commit` that touches `INPUT.md` from now on will allow you to automatically run `readme2tex` on it, saving
-you from having to remember how `readme2tex` works.
+you from having to remember how `readme2tex` works. The caveat is that if you use a GUI to interact with git, things
+might get a bit wonky. In particular, `readme2tex` will just assume that you're fine with all of the changes and won't
+prompt you for verification like it does on the terminal.
 
 You can uninstall the hook by deleting `.git/hooks/post-commit`. See `python -m readme2tex --help` for a list
 of what you can do in `readme2tex`.
