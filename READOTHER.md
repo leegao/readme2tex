@@ -226,8 +226,10 @@ In addition, you can specify other arguments to `render.py`, such as:
 * `--username username` Your github username. This is optional, and `render.py` will try to infer this for you.
 * `--project project` The current github project. This is also optional.
 * `--nocdn True` Ticking this will use relative paths for the output images. Defaults to False.
-* `--htmlize False` Ticking this will output a `X.md.html` file so you can preview what the output looks like. Defaults to False.
+* `--htmlize False` Ticking this will output a `md.html` file so you can preview what the output looks like. Defaults to False.
 * `--valign False` Ticking this will use the `valign` trick (detailed below) instead. See the caveats section for tradeoffs.
+* `--rerender False` Ticking this will force a recompilation of all $\text{\LaTeX}$ equations even if they are already cached.
+* `--bustcache False` Ticking this will ensure that Github renews its image cache. Github may sometimes take up to an hour for changed images to reappear. This is usually not necessary unless you've made stylistic changes.
 
 My usual workflow is to create a secondary branch just for the compiled svgs. You can accomplish this via
 
