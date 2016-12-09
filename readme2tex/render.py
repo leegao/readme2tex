@@ -149,6 +149,7 @@ def render(
             try:
                 svg = check_output(['git', 'show', '%s:%s' % (branch, svg_path.replace('\\', '/'))]).decode('utf-8')
             except Exception as e:
+                print("Cannot find %s:%s" % (branch, svg_path.replace('\\', '/')))
                 pass
         else:
             if os.path.exists(svg_path):
@@ -227,8 +228,9 @@ def render(
             os.makedirs(svgdir)
         for equation, start, end, _ in equations:
             svg, name, dvi, off = equation_map[(start, end)]
-            with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
-                file.write(svg)
+            if dvi:
+                with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
+                    file.write(svg)
     else:
         # git stash -q --keep-index
         stashed = False
@@ -249,10 +251,13 @@ def render(
                 os.makedirs(svgdir)
             for equation, start, end, _ in equations:
                 svg, name, dvi, off = equation_map[(start, end)]
-                with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
-                    file.write(svg)
+                if dvi:
+                    with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
+                        file.write(svg)
 
-            if check_output(['git', 'status', '-s']).decode('utf-8').strip():
+            status = check_output(['git', 'status', '-s']).decode('utf-8').strip()
+            if status:
+                print(status)
                 print("Committing changes...")
                 check_output(['git', 'add', svgdir])
                 check_output(['git', 'commit', '-m', 'readme2latex render'])
