@@ -96,16 +96,18 @@ In addition, you can specify other arguments to `render.py`, such as:
 
 * `--readme READOTHER.md` The raw readme to process. Defaults to `READOTHER.md`.
 * `--output README.md` The processed readme.md file. Defaults to `README_GH.md`.
-* `--packages ...` A list of addition packages to use during <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/c068b57af6b6fa949824f73dcb828783.svg?invert_in_darkmode" align=middle width=42.058004999999994pt height=22.40667000000001pt/> compilation. This is optional.
+* `--usepackage tikz` Addition packages to use during <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/c068b57af6b6fa949824f73dcb828783.svg?invert_in_darkmode" align=middle width=42.058004999999994pt height=22.40667000000001pt/> compilation. You can specify this multiple times.
 * `--svgdir svgs/` The directory to store the output svgs. The default is `svgs/`
 * `--branch master` *Experimental* Which branch to store the svgs into, the default is just master.
 * `--username username` Your github username. This is optional, and `render.py` will try to infer this for you.
 * `--project project` The current github project. This is also optional.
-* `--nocdn True` Ticking this will use relative paths for the output images. Defaults to False.
-* `--htmlize False` Ticking this will output a `md.html` file so you can preview what the output looks like. Defaults to False.
-* `--valign False` Ticking this will use the `valign` trick (detailed below) instead. See the caveats section for tradeoffs.
-* `--rerender False` Ticking this will force a recompilation of all <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/c068b57af6b6fa949824f73dcb828783.svg?invert_in_darkmode" align=middle width=42.058004999999994pt height=22.40667000000001pt/> equations even if they are already cached.
-* `--bustcache False` Ticking this will ensure that Github renews its image cache. Github may sometimes take up to an hour for changed images to reappear. This is usually not necessary unless you've made stylistic changes.
+* `--nocdn` Ticking this will use relative paths for the output images. Defaults to False.
+* `--htmlize` Ticking this will output a `md.html` file so you can preview what the output looks like. Defaults to False.
+* `--valign` Ticking this will use the `valign` trick (detailed below) instead. See the caveats section for tradeoffs.
+* `--rerender` Ticking this will force a recompilation of all <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/c068b57af6b6fa949824f73dcb828783.svg?invert_in_darkmode" align=middle width=42.058004999999994pt height=22.40667000000001pt/> equations even if they are already cached.
+* `--bustcache` Ticking this will ensure that Github renews its image cache. Github may sometimes take up to an hour for changed images to reappear. This is usually not necessary unless you've made stylistic changes.
+* `--add-git-hook` Ticking this will generate a post-commit hook for git that runs readme2tex with the rest of the specified arguments after each `git commit`.
+* `--generate-script script.sh` Generates the above script, but at `script.sh`.
 
 My usual workflow is to create a secondary branch just for the compiled svgs. You can accomplish this via
 
