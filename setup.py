@@ -22,6 +22,7 @@ setup(name='readme2tex',
       keywords='github readme markdown latex tex equations math svg markup',
       install_requires=[
           'markdown',
+          'pygments',
       ],
       include_package_data=True,
       zip_safe=False)
