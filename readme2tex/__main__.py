@@ -1,4 +1,5 @@
 import os
+from glob import glob
 from subprocess import check_output
 
 from . import render
@@ -87,30 +88,65 @@ fi
 if __name__.endswith('__main__'):
     import argparse
 
-    parser = argparse.ArgumentParser(description='Render LaTeX in Github Readmes')
-    parser.add_argument('--readme', type=str)
+    epilog = r'''
+
+To render Foo.md into Bar.md, run
+
+> python -m readme2tex --output Bar.md Foo.md
+
+To save the output images in a dedicated `svgs` branch, run
+
+> python -m readme2tex --output Bar.md Foo.md --branch svgs
+
+To add the tikz package, run
+
+> python -m readme2tex --output Bar.md Foo.md --branch svgs --usepackage tikz
+
+To save a script that runs this in the future, run
+
+> python -m readme2tex --output Bar.md Foo.md --branch svgs --usepackage tikz --generate-script texify.sh
+
+To save this script as your post-commit git hook, run
+
+> python -m readme2tex --output Bar.md Foo.md --branch svgs --usepackage tikz --add-git-hook
+
+    '''
+    parser = argparse.ArgumentParser(prog='python -m readme2tex', description='Render LaTeX in Github Readmes', epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--readme', nargs='?', type=str, help="The Markdown input file to render.")
     parser.add_argument('--engine', type=str, default="latex")
-    parser.add_argument('--output', type=str, default="README_GH.md")
-    parser.add_argument('--packages', type=list, action='append', default=['amsmath', 'amssymb'])
-    parser.add_argument('--svgdir', type=str, default='svgs')
-    parser.add_argument('--branch', type=str)
-    parser.add_argument('--username', type=str)
-    parser.add_argument('--project', type=str)
-    parser.add_argument('--nocdn', default=False)
-    parser.add_argument('--htmlize', default=False, type=bool)
-    parser.add_argument('--valign', default=False)
-    parser.add_argument('--rerender', default=False)
-    parser.add_argument('--bustcache', default=False)
-    parser.add_argument('--add-git-hook', default=False)
+    parser.add_argument('--output', type=str, default="README_GH.md", help="The output file. Defaults to README_GH.md")
+    parser.add_argument('--usepackage', type=list, action='append', default=['amsmath', 'amssymb'], help="Include a LaTeX package. Comes with amsmath and amssymb.")
+    parser.add_argument('--svgdir', nargs=1, type=str, default='svgs', help="Name of the folder to save the output svgs into. Defaults to svgs.")
+    parser.add_argument('--branch', nargs=1, type=str, help="[EXPERIMENTAL] Which branch to save the svgs into. Used by the git-hook system. Defaults to the current branch.")
+    parser.add_argument('--username', nargs=1, type=str, help="Github username. Can be inferred.")
+    parser.add_argument('--project', nargs=1, type=str, help="Github project. Can be inferred.")
+    parser.add_argument('--nocdn', action='store_true', help="Use local relative path rather than rawgit's CDN. Useful for debugging.")
+    parser.add_argument('--htmlize', action='store_true', help="Output a md.html file for you to preview. Useful for debugging.")
+    parser.add_argument('--valign', action='store_true', help="Use the valign attribute instead of the align=middle trick. Only works on Chrome.")
+    parser.add_argument('--rerender', action='store_true', help="Even if equations have already been compiled, recompile them anyways.")
+    parser.add_argument('--bustcache', action='store_true', help="Github has a latency before it will serve up the new asset. This option allows us to circumvent its caching.")
+    parser.add_argument('--add-git-hook', action='store_true', help="Automatically generates a post-commit git hook with the rest of the arguments. In the future, git commit will automatically trigger readme2tex if the input file is changed.")
+    parser.add_argument('--generate-script', nargs=1, help="Same as add-git-hook, but dumps it as a normal script")
+    parser.add_argument('input', nargs='?', type=str, help="Same as --readme")
 
     args = parser.parse_args()
+    if args.input:
+        args.readme = args.input
 
-    if not args.add_git_hook:
+    if not args.add_git_hook and not args.generate_script:
+        readme = args.readme or args
+        if not readme:
+            md_files = [file for file in glob("*.md") if file.lower() == 'readother.md']
+            if md_files:
+                readme = md_files[0]
+        if not readme or not os.path.exists(readme):
+            parser.error("Cannot find a valid Markdown file to process. "
+                         "Either pass it into --readme or create a READOTHER.md file.")
         render(
-            args.readme,
+            readme,
             args.output,
             args.engine,
-            args.packages,
+            args.usepackage,
             args.svgdir,
             args.branch,
             args.username,
@@ -124,10 +160,16 @@ if __name__.endswith('__main__'):
         # Make sure we're in a git top-level
         assert os.path.exists(".git")
 
-        if os.path.exists(".git/hooks/post-commit"):
-            response = input(".git/hooks/post-commit already exists. Do you want to replace it? [y/N] ")
-            if response.lower() != 'y':
-                exit(1)
+        if args.add_git_hook:
+            if os.path.exists(".git/hooks/post-commit"):
+                response = input(".git/hooks/post-commit already exists. Do you want to replace it? [y/N] ")
+                if response.lower() != 'y':
+                    exit(1)
+        else:
+            if os.path.exists(args.generate_script):
+                response = input("%s already exists. Do you want to replace it? [y/N] " % args.generate_script)
+                if response.lower() != 'y':
+                    exit(1)
 
         environment = {
             'readother' : args.readme if args.readme else 'READOTHER.md',
@@ -158,13 +200,16 @@ if __name__.endswith('__main__'):
 
         args_strings = []
         for arg, val in args.__dict__.items():
-            if arg in {'readme', 'output', 'branch', 'engine', 'packages', 'add_git_hook', }: continue
+            if arg in {'readme', 'output', 'branch', 'engine', 'usepackage', 'add_git_hook', 'generate_script'}: continue
             if not val: continue
-            args_strings.append('--' + arg + ' \'' + str(val) + '\'')
+            if isinstance(val, bool):
+                args_strings.append('--' + arg)
+            else:
+                args_strings.append('--' + arg + ' \'' + str(val) + '\'')
 
-        for package in args.packages:
+        for package in args.usepackage:
             if package in {'amsmath', 'amssymb'}: continue
-            args_strings.append('--packages \'' + str(package) + '\'')
+            args_strings.append('--usepackage \'' + str(package) + '\'')
 
         environment['args'] = ' '.join(args_strings)
 
@@ -178,9 +223,14 @@ if __name__.endswith('__main__'):
         except NameError:
             print(script)
 
-        response = input("Would you like to write this to .git/hooks/post-commit? [y/N] ")
+        response = input("Would you like to write this to %s? [y/N] " %
+                         ('.git/hooks/post-commit' if args.add_git_hook else args.generate_script))
         if response.lower() != 'y':
             exit(1)
 
-        with open('.git/hooks/post-commit', 'w') as f:
-            f.write(script)
+        if args.add_git_hook:
+            with open('.git/hooks/post-commit', 'w') as f:
+                f.write(script)
+        else:
+            with open(args.generate_script, 'w') as f:
+                f.write(script)

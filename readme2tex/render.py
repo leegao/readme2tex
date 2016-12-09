@@ -104,7 +104,7 @@ def extract_equations(content):
 
 
 def render(
-        readme=None,
+        readme,
         output='README_GH.md',
         engine='latex',
         packages=('amsmath', 'amssymb'),
@@ -122,14 +122,9 @@ def render(
         nocdn = True
         branch = None
     temp_dir = tempfile.mkdtemp('', 'readme2tex-')
-    if not readme or not open(readme):
-        md_files = [file for file in glob("*.md") if file.lower() == 'readother.md']
-        if not md_files: raise Exception("Must either pass in a --readme file or have a READOTHER.md file.")
-        readme = md_files[0]
 
     with open(readme) as readme_file:
         content = readme_file.read()
-    if not content: raise Exception("Cannot read file.")
     content = content.replace('\r', '')
 
     equations = list(extract_equations(content))
