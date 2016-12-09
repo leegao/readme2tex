@@ -114,7 +114,8 @@ def render(
         project=None,
         nocdn=False,
         htmlize=False,
-        use_valign=False):
+        use_valign=False,
+        rerender=False):
     # look for $.$ or $$.$$
     if htmlize:
         nocdn = True
@@ -138,6 +139,31 @@ def render(
             equation_map[(start, end)] = equation_map[seen[equation]]
             continue
         seen[equation] = (start, end)
+
+        # Check if this already exists
+        svg = None
+        name = hashlib.md5(equation.encode('utf-8')).hexdigest()
+        svg_path = os.path.join(svgdir, name + '.svg')
+        if branch:
+            try:
+                svg = check_output(['git', 'show', '%s:%s' % (branch, svg_path.replace('\\', '/'))]).decode('utf-8')
+            except Exception as e:
+                pass
+        else:
+            if os.path.exists(svg_path):
+                with open(svg_path) as f:
+                    svg = f.read()
+
+        try:
+            if svg and not rerender:
+                xml = ET.fromstring(svg)
+                offset = float(xml.attrib['{http://github.com/leegao/readme2tex/}offset'])
+                equation_map[(start, end)] = (svg, name, None, offset)
+                continue
+        except Exception as e:
+            print("Cached SVG file for %s is corrupt, rerendering." % svg_path)
+            pass
+
         svg, dvi, name = rendertex(engine, equation, packages, temp_dir, block)
         svg = svg.decode('utf-8')
 
@@ -180,6 +206,8 @@ def render(
         else:
             baseline_offset = 0
 
+        xml.set('readme2tex:offset', str(baseline_offset))
+        xml.set('xmlns:readme2tex', 'http://github.com/leegao/readme2tex/')
         svg = ET.tostring(xml).decode('utf-8')
 
         equation_map[(start, end)] = (svg, name, dvi, baseline_offset)

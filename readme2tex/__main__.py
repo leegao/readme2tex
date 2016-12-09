@@ -15,6 +15,7 @@ if __name__.endswith('__main__'):
     parser.add_argument('--nocdn', default=False)
     parser.add_argument('--htmlize', default=False, type=bool)
     parser.add_argument('--valign', default=False)
+    parser.add_argument('--rerender', default=False)
 
     args = parser.parse_args()
     render(
@@ -28,4 +29,5 @@ if __name__.endswith('__main__'):
         args.project,
         args.nocdn,
         args.htmlize,
-        args.valign)
+        args.valign,
+        args.rerender)
