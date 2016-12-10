@@ -229,14 +229,14 @@ def render(
     else:
         # git stash -q --keep-index
         stashed = False
-        if check_output(['git', 'status', '-s']).decode('utf-8').strip():
+        if check_output(['git', 'status', '-u', 'no', '-s']).decode('utf-8').strip():
             if input(
                     "There are unstaged files, would you like to stash them? "
                     "(They will be automatically unstashed.) [(y)/n]").lower().startswith('n'):
                 print("Aborting.")
                 return
             print("Stashing...")
-            check_output(['git', 'stash', '-q', '-u', '--keep-index'])
+            check_output(['git', 'stash'])
             stashed = True
         try:
             print("Checking out %s" % branch)
@@ -263,10 +263,13 @@ def render(
             check_output(['git', 'checkout', old_branch])
         except Exception as e:
             print(e)
-            print("Cleaning up.")
-            check_output(['git', 'checkout', '--', '.'])
-            check_output(['git', 'clean', '-df'])
-            check_output(['git', 'checkout', old_branch])
+            # print("Cleaning up.")
+            # check_output(['git', 'checkout', '--', '.'])
+            # check_output(['git', 'clean', '-df'])
+            # check_output(['git', 'checkout', old_branch])
+            if stashed:
+                print("You have stashed changes on " + old_branch + ", make sure you unstash them there.")
+            raise e
 
         if stashed:
             print("Unstashing...")

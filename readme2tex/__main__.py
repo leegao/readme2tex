@@ -11,7 +11,13 @@ except NameError:
 
 post_commit_template = r'''#!/bin/bash
 
-bold=$(tput setaf bold)
+if [ ! -z "$postcommit" ]; then
+    exit
+fi
+
+export postcommit=true
+
+bold=$(tput bold)
 color=$(tput setaf 2)
 reset=$(tput sgr0)
 
@@ -24,13 +30,8 @@ fi
 # Check to see if %(readother)s has been updated
 
 changes=$(git diff --name-only HEAD^ | grep "%(readother)s")
-readme=$(git diff --name-only HEAD^ | grep "%(readme)s")
 
 if [ -z "$changes" ]; then
-    exit
-fi
-
-if [ ! -z "$readme" ]; then
     exit
 fi
 
@@ -62,7 +63,7 @@ if [ $? -eq 0 ]; then
     echo "Finished rendering."
     git add %(readme)s
     echo
-    read -p "Do you want to amend changes to ${color}%(readme)s$reset now? [Y/n]: " amend
+    read -p "Do you want to amend changes to ${color}%(readme)s$reset now? [Y/n]: " meh
     if [ "$meh" = "" ]; then
         meh='Y'
     fi
@@ -200,7 +201,7 @@ To save this script as your post-commit git hook, run
 
         args_strings = []
         for arg, val in args.__dict__.items():
-            if arg in {'readme', 'output', 'branch', 'engine', 'usepackage', 'add_git_hook', 'generate_script'}: continue
+            if arg in {'readme', 'output', 'branch', 'engine', 'usepackage', 'add_git_hook', 'generate_script', 'input'}: continue
             if not val: continue
             if isinstance(val, bool):
                 args_strings.append('--' + arg)
@@ -213,7 +214,7 @@ To save this script as your post-commit git hook, run
 
         environment['args'] = ' '.join(args_strings)
 
-        print()
+        print('')
         script = post_commit_template % environment
         try:
             from pygments import highlight
