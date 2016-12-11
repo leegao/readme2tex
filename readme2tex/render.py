@@ -63,7 +63,7 @@ def extract_equations(content):
             for line, string in enumerate(lines):
                 cummulative += len(string) + 1
                 if dollar < cummulative: break
-            if lines[line].startswith('  '):
+            if lines[line].startswith('   '):
                 cursor = dollar + 2
                 continue
             if len(content) > dollar and content[dollar + 1] == '$':
@@ -85,7 +85,7 @@ def extract_equations(content):
             for line, string in enumerate(lines):
                 cummulative += len(string) + 1
                 if begin < cummulative: break
-            if lines[line].startswith('  '):
+            if lines[line].startswith('   '):
                 cursor = begin + 6
                 continue
             leftover = content[begin + 6:]
