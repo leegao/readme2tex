@@ -57,9 +57,10 @@ tput setaf 3
 echo
 echo "Running readme2tex..."
 python -m readme2tex --output %(readme)s --readme %(readother)s --branch %(branch)s %(args)s
+result=$?
 echo $reset
 
-if [ $? -eq 0 ]; then
+if [ $result -eq 0 ]; then
     echo "Finished rendering."
     git add %(readme)s
     echo
@@ -82,6 +83,7 @@ if [ $? -eq 0 ]; then
     echo
 else
     echo "$(tput setaf 1)Encountered error while translating %(readother)s${reset}"
+    echo "  Your environment may have changed; please make sure that you go back to a clean state."
     exit 1
 fi
 '''

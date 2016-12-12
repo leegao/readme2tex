@@ -263,10 +263,13 @@ def render(
             check_output(['git', 'checkout', old_branch])
         except Exception as e:
             print(e)
-            # print("Cleaning up.")
-            # check_output(['git', 'checkout', '--', '.'])
-            # check_output(['git', 'clean', '-df'])
-            # check_output(['git', 'checkout', old_branch])
+            try:
+                print("Cleaning up.")
+                check_output(['git', 'checkout', '--', '.'])
+                check_output(['git', 'clean', '-df'])
+                check_output(['git', 'checkout', old_branch])
+            except Exception as e_:
+                print("Could not cleanup. %s\n\nMake sure that you cleanup manually." % e_)
             if stashed:
                 print("You have stashed changes on " + old_branch + ", make sure you unstash them there.")
             raise e
