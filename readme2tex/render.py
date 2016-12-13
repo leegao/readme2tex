@@ -130,6 +130,7 @@ def render(
     equations = list(extract_equations(content))
     equation_map = {}
     seen = {}
+    has_changes = False
     for equation, start, end, block in equations:
         if equation in seen:
             equation_map[(start, end)] = equation_map[seen[equation]]
@@ -207,6 +208,7 @@ def render(
         xml.set('xmlns:readme2tex', 'http://github.com/leegao/readme2tex/')
         svg = ET.tostring(xml).decode('utf-8')
 
+        has_changes = True
         equation_map[(start, end)] = (svg, name, dvi, baseline_offset)
 
     # git rev-parse --abbrev-ref HEAD
@@ -217,31 +219,9 @@ def render(
             print("Not in a git repository, please enable --nocdn")
         old_branch = "NONE"
 
-    if not branch or branch == old_branch:
-        branch = old_branch
-        if not os.path.exists(svgdir):
-            os.makedirs(svgdir)
-        for equation, start, end, _ in equations:
-            svg, name, dvi, off = equation_map[(start, end)]
-            if dvi:
-                with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
-                    file.write(svg)
-    else:
-        # git stash -q --keep-index
-        stashed = False
-        if check_output(['git', 'status', '-u', 'no', '-s']).decode('utf-8').strip():
-            if input(
-                    "There are unstaged files, would you like to stash them? "
-                    "(They will be automatically unstashed.) [(y)/n]").lower().startswith('n'):
-                print("Aborting.")
-                return
-            print("Stashing...")
-            check_output(['git', 'stash'])
-            stashed = True
-        try:
-            print("Checking out %s" % branch)
-            check_output(['git', 'checkout', branch])
-
+    if has_changes:
+        if not branch or branch == old_branch:
+            branch = old_branch
             if not os.path.exists(svgdir):
                 os.makedirs(svgdir)
             for equation, start, end, _ in equations:
@@ -249,34 +229,57 @@ def render(
                 if dvi:
                     with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                         file.write(svg)
-
-            status = check_output(['git', 'status', '-s']).decode('utf-8').strip()
-            if status:
-                print(status)
-                print("Committing changes...")
-                check_output(['git', 'add', svgdir])
-                check_output(['git', 'commit', '-m', 'readme2latex render'])
-            else:
-                print("No changes were made.")
-
-            print("Switching back to the original branch")
-            check_output(['git', 'checkout', old_branch])
-        except Exception as e:
-            print(e)
+        else:
+            # git stash -q --keep-index
+            stashed = False
+            if check_output(['git', 'status', '-u', 'no', '-s']).decode('utf-8').strip():
+                if input(
+                        "There are unstaged files, would you like to stash them? "
+                        "(They will be automatically unstashed.) [(y)/n]").lower().startswith('n'):
+                    print("Aborting.")
+                    return
+                print("Stashing...")
+                check_output(['git', 'stash'])
+                stashed = True
             try:
-                print("Cleaning up.")
-                check_output(['git', 'checkout', '--', '.'])
-                check_output(['git', 'clean', '-df'])
-                check_output(['git', 'checkout', old_branch])
-            except Exception as e_:
-                print("Could not cleanup. %s\n\nMake sure that you cleanup manually." % e_)
-            if stashed:
-                print("You have stashed changes on " + old_branch + ", make sure you unstash them there.")
-            raise e
+                print("Checking out %s" % branch)
+                check_output(['git', 'checkout', branch])
 
-        if stashed:
-            print("Unstashing...")
-            check_output(['git', 'stash', 'pop', '-q'])
+                if not os.path.exists(svgdir):
+                    os.makedirs(svgdir)
+                for equation, start, end, _ in equations:
+                    svg, name, dvi, off = equation_map[(start, end)]
+                    if dvi:
+                        with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
+                            file.write(svg)
+
+                status = check_output(['git', 'status', '-s']).decode('utf-8').strip()
+                if status:
+                    print(status)
+                    print("Committing changes...")
+                    check_output(['git', 'add', svgdir])
+                    check_output(['git', 'commit', '-m', 'readme2latex render'])
+                else:
+                    print("No changes were made.")
+
+                print("Switching back to the original branch")
+                check_output(['git', 'checkout', old_branch])
+            except Exception as e:
+                print(e)
+                try:
+                    print("Cleaning up.")
+                    check_output(['git', 'checkout', '--', '.'])
+                    check_output(['git', 'clean', '-df'])
+                    check_output(['git', 'checkout', old_branch])
+                except Exception as e_:
+                    print("Could not cleanup. %s\n\nMake sure that you cleanup manually." % e_)
+                if stashed:
+                    print("You have stashed changes on " + old_branch + ", make sure you unstash them there.")
+                raise e
+
+            if stashed:
+                print("Unstashing...")
+                check_output(['git', 'stash', 'pop', '-q'])
 
     # Make replacements
     if not user or not project:
