@@ -129,14 +129,13 @@ To save this script as your post-commit git hook, run
     parser.add_argument('--rerender', action='store_true', help="Even if equations have already been compiled, recompile them anyways.")
     parser.add_argument('--bustcache', action='store_true', help="Github has a latency before it will serve up the new asset. This option allows us to circumvent its caching.")
     parser.add_argument('--add-git-hook', action='store_true', help="Automatically generates a post-commit git hook with the rest of the arguments. In the future, git commit will automatically trigger readme2tex if the input file is changed.")
-    parser.add_argument('--generate-script', help="Same as add-git-hook, but dumps it as a normal script")
     parser.add_argument('input', nargs='?', type=str, help="Same as --readme")
 
     args = parser.parse_args()
     if args.input:
         args.readme = args.input
 
-    if not args.add_git_hook and not args.generate_script:
+    if not args.add_git_hook:
         readme = args.readme or args
         if not readme:
             md_files = [file for file in glob("*.md") if file.lower() == 'readother.md']
@@ -166,11 +165,6 @@ To save this script as your post-commit git hook, run
         if args.add_git_hook:
             if os.path.exists(".git/hooks/post-commit"):
                 response = input(".git/hooks/post-commit already exists. Do you want to replace it? [y/N] ")
-                if response.lower() != 'y':
-                    exit(1)
-        else:
-            if os.path.exists(args.generate_script):
-                response = input("%s already exists. Do you want to replace it? [y/N] " % args.generate_script)
                 if response.lower() != 'y':
                     exit(1)
 
@@ -226,14 +220,10 @@ To save this script as your post-commit git hook, run
         except NameError:
             print(script)
 
-        response = input("Would you like to write this to %s? [y/N] " %
-                         ('.git/hooks/post-commit' if args.add_git_hook else args.generate_script))
+        response = input("Would you like to write this to %s? [y/N] " % '.git/hooks/post-commit')
         if response.lower() != 'y':
             exit(1)
 
         if args.add_git_hook:
             with open('.git/hooks/post-commit', 'w') as f:
-                f.write(script)
-        else:
-            with open(args.generate_script, 'w') as f:
                 f.write(script)
