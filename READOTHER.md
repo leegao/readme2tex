@@ -47,26 +47,32 @@ and `dvisvgm` on your `PATH`.
 
 To install `readme2tex`, you'll need to run
 
-    sudo pip install readme2tex
+```bash
+sudo pip install readme2tex
+```
 
 To compile `INPUT.md` and render all of its equations, run
 
-    python -m readme2tex --output README.md INPUT.md
-    
+```bash
+python -m readme2tex --output README.md INPUT.md
+```
+
 If you want to do this automatically for every commit of INPUT.md, you can use the `--add-git-hook` command once to
 set up the post-commit hook, like so
 
-    git stash --include-untracked
-    git branch svgs # if this isn't already there
-    
-    python -m readme2tex --output README.md --branch svgs --usepackage tikz INPUT.md --add-git-hook
-    
-    # modify INPUT.md
-    
-    git add INPUT.md
-    git commit -a -m "updated readme"
-    
-    git stash pop
+```bash
+git stash --include-untracked
+git branch svgs # if this isn't already there
+
+python -m readme2tex --output README.md --branch svgs --usepackage tikz INPUT.md --add-git-hook
+
+# modify INPUT.md
+
+git add INPUT.md
+git commit -a -m "updated readme"
+
+git stash pop
+```
 
 and every `git commit` that touches `INPUT.md` from now on will allow you to automatically run `readme2tex` on it, saving
 you from having to remember how `readme2tex` works. The caveat is that if you use a GUI to interact with git, things
