@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='readme2tex',
-      version='0.0.1b0',
+      version='0.0.1b1',
       description='Render LaTeX within your Github Readmes',
       long_description=readme(),
       url='http://github.com/leegao/readme2tex',
