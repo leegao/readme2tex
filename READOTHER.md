@@ -31,8 +31,14 @@ $$
 `readme2tex` is a Python script that "texifies" your readme. It takes in Github Markdown and
 replaces anything enclosed between dollar signs with rendered $\text{\LaTeX}$.
 
-In addition, unlike the other Github TeX renderers, `readme2tex` ensures that inline mathematical expressions
-are properly aligned with the rest of the text to avoid giving a "jumpy" look to the document.
+In addition, while other Github TeX renderers tend to give a jumpy look to the compiled text, 
+<p align="center">
+<img src="http://i.imgur.com/XSV1rPw.png"/>
+</p>
+`readme2tex` ensures that inline mathematical expressions
+are properly aligned with the rest of the text to give a more natural look to the document. For example,
+this equation $\frac{dy}{dx}$ is preprocessed so that it lines up at the correct baseline for the text.
+This is the one salient feature of this package compared to the others out there.
 
 ### Installation
 
