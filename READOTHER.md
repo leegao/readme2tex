@@ -261,7 +261,6 @@ In addition, you can specify other arguments to `render.py`, such as:
 * `--rerender` Ticking this will force a recompilation of all $\text{\LaTeX}$ equations even if they are already cached.
 * `--bustcache` Ticking this will ensure that Github renews its image cache. Github may sometimes take up to an hour for changed images to reappear. This is usually not necessary unless you've made stylistic changes.
 * `--add-git-hook` Ticking this will generate a post-commit hook for git that runs readme2tex with the rest of the specified arguments after each `git commit`.
-* `--generate-script script.sh` Generates the above script, but at `script.sh`.
 
 My usual workflow is to create a secondary branch just for the compiled svgs. You can accomplish this via
 
