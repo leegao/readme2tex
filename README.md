@@ -14,7 +14,7 @@ replaces anything enclosed between dollar signs with rendered <img src="https://
 
 In addition, while other Github TeX renderers tend to give a jumpy look to the compiled text, 
 <p align="center">
-<img src="http://i.imgur.com/XSV1rPw.png"/>
+<img src="http://i.imgur.com/XSV1rPw.png?1"/>
 </p>
 `readme2tex` ensures that inline mathematical expressions
 are properly aligned with the rest of the text to give a more natural look to the document. For example,
