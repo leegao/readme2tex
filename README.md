@@ -24,7 +24,7 @@ This is the one salient feature of this package compared to the others out there
 ### Installation
 
 Make sure that you have Python 2.7 or above and `pip` installed. In addition, you'll need to have the programs `latex` 
-and `dvisvgm` on your `PATH`.
+and `dvisvgm` on your `PATH`. In addition, you'll need to pre-install the `geometry` package in <img src="https://rawgit.com/leegao/readme2tex/svgs/svgs/87181ad2b235919e0785dee664166921.svg?invert_in_darkmode" align=middle width=45.772815pt height=22.19118pt/>.
 
 To install `readme2tex`, you'll need to run
 

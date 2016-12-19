@@ -43,7 +43,7 @@ This is the one salient feature of this package compared to the others out there
 ### Installation
 
 Make sure that you have Python 2.7 or above and `pip` installed. In addition, you'll need to have the programs `latex` 
-and `dvisvgm` on your `PATH`.
+and `dvisvgm` on your `PATH`. In addition, you'll need to pre-install the `geometry` package in $\LaTeX$.
 
 To install `readme2tex`, you'll need to run
 
