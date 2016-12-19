@@ -1,17 +1,19 @@
 #!/usr/bin/env python
-import random
-import tempfile
-from subprocess import check_output
-from glob import glob
-import re, os
 import hashlib
-import xml.etree.ElementTree as ET
+import os
+import random
+import re
 import sys
+import tempfile
+import xml.etree.ElementTree as ET
+from subprocess import check_output
 
 envelope = r'''%% processed with readme2tex
 \documentclass{article}
 %s
+\usepackage{geometry}
 \pagestyle{empty}
+\geometry{paperwidth=170mm, paperheight=16383pt, left=40pt, top=40pt, textwidth=280pt, marginparsep=20pt, marginparwidth=100pt, textheight=16263pt, footskip=40pt}
 \begin{document}
 %s%s
 \end{document}
