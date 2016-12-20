@@ -13,7 +13,7 @@ envelope = r'''%% processed with readme2tex
 %s
 \usepackage{geometry}
 \pagestyle{empty}
-\geometry{paperwidth=170mm, paperheight=16383pt, left=40pt, top=40pt, textwidth=280pt, marginparsep=20pt, marginparwidth=100pt, textheight=16263pt, footskip=40pt}
+\geometry{paperwidth=250mm, paperheight=16383pt, left=0pt, top=0pt, textwidth=426pt, marginparsep=20pt, marginparwidth=100pt, textheight=16263pt, footskip=40pt}
 \begin{document}
 %s%s
 \end{document}
@@ -234,14 +234,14 @@ def render(
         else:
             # git stash -q --keep-index
             stashed = False
-            if check_output(['git', 'status', '-u', 'no', '-s']).decode('utf-8').strip():
+            if check_output(['git', 'status', '-s']).decode('utf-8').strip():
                 if input(
                         "There are unstaged files, would you like to stash them? "
                         "(They will be automatically unstashed.) [(y)/n]").lower().startswith('n'):
                     print("Aborting.")
                     return
                 print("Stashing...")
-                check_output(['git', 'stash'])
+                check_output(['git', 'stash', '-u'])
                 stashed = True
             try:
                 print("Checking out %s" % branch)
