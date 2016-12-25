@@ -7,6 +7,7 @@ import sys
 import tempfile
 import xml.etree.ElementTree as ET
 from subprocess import check_output
+import logging
 
 envelope = r'''%% processed with readme2tex
 \documentclass{article}
@@ -38,7 +39,7 @@ def rendertex(engine, string, packages, temp_dir, block):
             [engine, '-output-directory=' + temp_dir, '-interaction', 'nonstopmode', source_file],
             stderr=sys.stdout)
     except:
-        print("'%s' has warnings during compilation. See %s/%s" % (string, temp_dir, name))
+        logging.warning("'%s' has warnings during compilation. See %s/%s", string, temp_dir, name)
     dvi = os.path.join(temp_dir, name + '.dvi')
     svg = check_output(
         ['dvisvgm', '-v0', '-a', '-n', '-s', dvi])
@@ -146,9 +147,8 @@ def render(
         if branch:
             try:
                 svg = check_output(['git', 'show', '%s:%s' % (branch, svg_path.replace('\\', '/'))]).decode('utf-8')
-            except Exception as e:
-                print("Cannot find %s:%s" % (branch, svg_path.replace('\\', '/')))
-                pass
+            except Exception:
+                logging.info("Cannot find %s:%s", branch, svg_path.replace('\\', '/'))
         else:
             if os.path.exists(svg_path):
                 with open(svg_path) as f:
@@ -160,9 +160,8 @@ def render(
                 offset = float(xml.attrib['{http://github.com/leegao/readme2tex/}offset'])
                 equation_map[(start, end)] = (svg, name, None, offset)
                 continue
-        except Exception as e:
-            print("Cached SVG file for %s is corrupt, rerendering." % svg_path)
-            pass
+        except Exception:
+            logging.warning("Cached SVG file for %s is corrupt, rerendering.", svg_path)
 
         svg, dvi, name = rendertex(engine, equation, packages, temp_dir, block)
         svg = svg.decode('utf-8')
@@ -218,8 +217,8 @@ def render(
         old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
     except:
         if not nocdn:
-            print("Not in a git repository, please enable --nocdn")
-        old_branch = "NONE"
+            logging.error("Not in a git repository, please enable --nocdn")
+        return exit(1)
 
     if has_changes:
         if not branch or branch == old_branch:
@@ -238,13 +237,13 @@ def render(
                 if input(
                         "There are unstaged files, would you like to stash them? "
                         "(They will be automatically unstashed.) [(y)/n]").lower().startswith('n'):
-                    print("Aborting.")
+                    logging.error("Aborting.")
                     return
-                print("Stashing...")
+                logging.info("Stashing...")
                 check_output(['git', 'stash', '-u'])
                 stashed = True
             try:
-                print("Checking out %s" % branch)
+                logging.info("Checking out %s", branch)
                 check_output(['git', 'checkout', branch])
 
                 if not os.path.exists(svgdir):
@@ -257,30 +256,30 @@ def render(
 
                 status = check_output(['git', 'status', '-s']).decode('utf-8').strip()
                 if status:
-                    print(status)
-                    print("Committing changes...")
+                    logging.info(status)
+                    logging.info("Committing changes...")
                     check_output(['git', 'add', svgdir])
                     check_output(['git', 'commit', '-m', 'readme2latex render'])
                 else:
-                    print("No changes were made.")
+                    logging.info("No changes were made.")
 
-                print("Switching back to the original branch")
+                logging.info("Switching back to the original branch")
                 check_output(['git', 'checkout', old_branch])
             except Exception as e:
-                print(e)
+                logging.error("%s", e)
                 try:
-                    print("Cleaning up.")
+                    logging.info("Cleaning up.")
                     check_output(['git', 'checkout', '--', '.'])
                     check_output(['git', 'clean', '-df'])
                     check_output(['git', 'checkout', old_branch])
                 except Exception as e_:
-                    print("Could not cleanup. %s\n\nMake sure that you cleanup manually." % e_)
+                    logging.fatal("Could not cleanup. %s\n\nMake sure that you cleanup manually.", e_)
                 if stashed:
-                    print("You have stashed changes on " + old_branch + ", make sure you unstash them there.")
+                    logging.fatal("You have stashed changes on " + old_branch + ", make sure you unstash them there.")
                 raise e
 
             if stashed:
-                print("Unstashing...")
+                logging.info("Unstashing...")
                 check_output(['git', 'stash', 'pop', '-q'])
 
     # Make replacements
@@ -333,7 +332,7 @@ def render(
         try:
             import markdown
         except:
-            print("Cannot render markdown, make sure that the markdown package is installed.")
+            logging.error("Cannot render markdown, make sure that the markdown package is installed.")
             return
         with open(output+".html", 'w') as outfile:
             outfile.write(markdown.markdown(new))
