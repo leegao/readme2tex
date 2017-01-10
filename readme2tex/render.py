@@ -25,6 +25,16 @@ try:
 except NameError:
     pass
 
+html_escape_dict = {
+    '"': '&quot;',
+    '\n': '&#x0a;',
+    '<': '&lt;',
+}
+
+def replace_all(text, dic):
+  for i, j in dic.iteritems():
+    text = text.replace(i, j)
+  return text
 
 def rendertex(engine, string, packages, temp_dir, block):
     if engine != 'latex': raise Exception("Not Implemented")
@@ -317,7 +327,8 @@ def render(
             tail.append('%x' % random.randint(0, 1e12))
         if needs_inversion:
             tail.append('invert_in_darkmode')
-        img = '<img src="%s%s" %s width=%spt height=%spt/>' % (
+        img = '<img alt="%s" src="%s%s" %s width="%spt" height="%spt"/>' % (
+            replace_all(equation, html_escape_dict),
             url,
             '?%s' % ('&'.join(tail)) if tail else '',
             ('valign=%spx'%(-off * scale) if use_valign else 'align=middle'),
