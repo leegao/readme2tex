@@ -7,6 +7,7 @@ import sys
 import tempfile
 import xml.etree.ElementTree as ET
 from subprocess import check_output
+from xml.sax.saxutils import quoteattr
 import logging
 
 envelope = r'''%% processed with readme2tex
@@ -24,7 +25,6 @@ try:
     input = raw_input
 except NameError:
     pass
-
 
 def rendertex(engine, string, packages, temp_dir, block):
     if engine != 'latex': raise Exception("Not Implemented")
@@ -317,7 +317,8 @@ def render(
             tail.append('%x' % random.randint(0, 1e12))
         if needs_inversion:
             tail.append('invert_in_darkmode')
-        img = '<img src="%s%s" %s width=%spt height=%spt/>' % (
+        img = '<img alt=%s src="%s%s" %s width="%spt" height="%spt"/>' % (
+            quoteattr(equation),
             url,
             '?%s' % ('&'.join(tail)) if tail else '',
             ('valign=%spx'%(-off * scale) if use_valign else 'align=middle'),
