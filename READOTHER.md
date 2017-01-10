@@ -308,6 +308,8 @@ of slack vertical spacing between these lines. If this is a deal-breaker for you
 mode. For most inline equations, this is usually a non-issue.
 
 #### How to compile this document
+Make sure that you have the `tikz` and the `xcolor` packages installed locally.
+
 
     python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch svgs
 
