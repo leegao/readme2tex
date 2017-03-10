@@ -1,6 +1,6 @@
 import os
 from glob import glob
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 from . import render
 
@@ -159,8 +159,15 @@ To save this script as your post-commit git hook, run
             args.rerender,
             args.bustcache)
     else:
-        # Make sure we're in a git top-level
-        assert os.path.exists(".git")
+
+        # Move ourselves to the root of the current repository
+        try:
+            root_location = check_output(['git', 'rev-parse', '--show-toplevel'])
+            os.chdir(root_location)
+        except:
+            print("The current directory is part of a git repository. Make sure that you create one before continuing")
+            exit(1)
+
 
         if args.add_git_hook:
             if os.path.exists(".git/hooks/post-commit"):
