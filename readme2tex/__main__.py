@@ -165,7 +165,7 @@ To save this script as your post-commit git hook, run
             root_location = check_output(['git', 'rev-parse', '--show-toplevel'])
             os.chdir(root_location)
         except:
-            print("The current directory is part of a git repository. Make sure that you create one before continuing")
+            print("The current directory isn't part of a git repository. Make sure that you create one before continuing.")
             exit(1)
 
 
