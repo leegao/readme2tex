@@ -136,7 +136,7 @@ To save this script as your post-commit git hook, run
         args.readme = args.input
 
     if not args.add_git_hook:
-        readme = args.readme or args
+        readme = args.readme or ''
         if not readme:
             md_files = [file for file in glob("*.md") if file.lower() == 'readother.md']
             if md_files:
