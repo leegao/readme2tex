@@ -35,6 +35,7 @@ In addition, while other Github TeX renderers tend to give a jumpy look to the c
 <p align="center">
 <img src="http://i.imgur.com/XSV1rPw.png?1" width=500/>
 </p>
+
 `readme2tex` ensures that inline mathematical expressions
 are properly aligned with the rest of the text to give a more natural look to the document. For example,
 this equation $\frac{dy}{dx}$ is preprocessed so that it lines up at the correct baseline for the text.
@@ -49,6 +50,14 @@ To install `readme2tex`, you'll need to run
 
 ```bash
 sudo pip install readme2tex
+```
+
+or, if you want to try out the bleeding edge,
+
+```bash
+git clone https://github.com/leegao/readme2tex
+cd readme2tex
+python setup.py develop
 ```
 
 To compile `INPUT.md` and render all of its equations, run
