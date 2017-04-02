@@ -162,9 +162,9 @@ To save this script as your post-commit git hook, run
 
         # Move ourselves to the root of the current repository
         try:
-            root_location = check_output(['git', 'rev-parse', '--show-toplevel'])
+            root_location = check_output(['git', 'rev-parse', '--show-toplevel']).strip()
             os.chdir(root_location)
-        except:
+        except Exception as e:
             print("The current directory isn't part of a git repository. Make sure that you create one before continuing.")
             exit(1)
 
