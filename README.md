@@ -72,6 +72,7 @@ prompt you for verification like it does on the terminal.
 <p align="center">
 <a href="https://asciinema.org/a/2am62r2x2udg1zqyb6r3kpm1i"><img src="https://asciinema.org/a/2am62r2x2udg1zqyb6r3kpm1i.png" width=600/></a>
 </p>
+
 You can uninstall the hook by deleting `.git/hooks/post-commit`. See `python -m readme2tex --help` for a list
 of what you can do in `readme2tex`.
 
