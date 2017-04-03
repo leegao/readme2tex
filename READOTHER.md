@@ -284,12 +284,26 @@ In addition, you can specify other arguments to `render.py`, such as:
 * `--rerender` Ticking this will force a recompilation of all $\text{\LaTeX}$ equations even if they are already cached.
 * `--bustcache` Ticking this will ensure that Github renews its image cache. Github may sometimes take up to an hour for changed images to reappear. This is usually not necessary unless you've made stylistic changes.
 * `--add-git-hook` Ticking this will generate a post-commit hook for git that runs readme2tex with the rest of the specified arguments after each `git commit`.
+* `--pngtrick` Ticking this will generate `png` files instead of `svgs` for the formulas.
 
 My usual workflow is to create a secondary branch just for the compiled svgs. You can accomplish this via
 
     python -m readme2tex --branch svgs --output README.md
 
 However, be careful with this command, since it will switch over to the `svgs` branch without any input from you.
+
+#### Relative Paths
+
+If you're on a private repository or you want to, for whatever reason, use relative paths to resolve your images, you can
+do so by using the combination
+
+    python -m readme2tex --branch master --nocdn --pngtrick ...
+
+which will output `pngs` relative to your `README.md`.
+
+Due to security considerations, Github will not resolve `svgs` relatively, which means that private repositories will
+be locked out of the usual `svg` workflow. Using the `--branch master --nocdn --pngtrick` combination will get around
+this restriction.
 
 ### Troubleshooting
 
