@@ -204,6 +204,17 @@ where `/usr/local/lib/libgs.dylib` is the location where `libgs.dylib` is instal
 chmod +x .git/hooks/post-commit
 ```
 
+#### I ran `readme2tex` and got a traceback somewhere.
+
+Unfortunately, this script still has a few kinks and bugs that I need to iron out. In the mean time, if the `pypi` releases
+aren't working for you, you should switch over to the development version to see if the bugs have been squashed:
+
+```bash
+git clone https://github.com/leegao/readme2tex
+cd readme2tex
+python setup.py develop
+```
+
 ### Technical Tricks
 
 #### How can you tell where the baseline of an image is?
