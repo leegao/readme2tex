@@ -1,11 +1,17 @@
 from setuptools import setup
 
 def readme():
-    with open('README.rst') as f:
-        return f.read()
+    return '''
+readme2tex
+==========
+
+Renders LaTeX for Github Readmes.
+  
+See https://github.com/leegao/readme2tex/
+'''
 
 setup(name='readme2tex',
-      version='0.0.1b2',
+      version='0.0.1b3',
       description='Render LaTeX within your Github Readmes',
       long_description=readme(),
       url='http://github.com/leegao/readme2tex',
