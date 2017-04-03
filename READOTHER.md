@@ -386,9 +386,41 @@ mode. For most inline equations, this is usually a non-issue.
 #### How to compile this document
 Make sure that you have the `tikz` and the `xcolor` packages installed locally.
 
-
     python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch svgs
 
 and of course
 
     python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch svgs --add-git-hook
+
+For the `png` relative mode, use
+
+    python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch master --nocdn --pngtrick
+
+\begin{tikzpicture}[scale=1, line join=bevel]
+% \a and \b are two macros defining characteristic
+% dimensions of the Penrose triangle.		
+\pgfmathsetmacro{\a}{2.5}
+\pgfmathsetmacro{\b}{0.9}
+
+\tikzset{%
+  apply style/.code     = {\tikzset{#1}},
+  triangle_edges/.style = {thick,draw=black}
+}
+
+\foreach \theta/\facestyle in {%
+    0/{triangle_edges, fill = gray!50},
+  120/{triangle_edges, fill = gray!25},
+  240/{triangle_edges, fill = gray!90}%
+}{
+  \begin{scope}[rotate=\theta]
+    \draw[apply style/.expand once=\facestyle]
+      ({-sqrt(3)/2*\a},{-0.5*\a})                     --
+      ++(-\b,0)                                       --
+        ({0.5*\b},{\a+3*sqrt(3)/2*\b})                -- % higher point	
+        ({sqrt(3)/2*\a+2.5*\b},{-.5*\a-sqrt(3)/2*\b}) -- % rightmost point
+      ++({-.5*\b},-{sqrt(3)/2*\b})                    -- % lower point
+        ({0.5*\b},{\a+sqrt(3)/2*\b})                  --
+      cycle;
+    \end{scope}
+  }	
+\end{tikzpicture}
