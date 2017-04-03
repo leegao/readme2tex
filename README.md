@@ -19,7 +19,7 @@ In addition, while other Github TeX renderers tend to give a jumpy look to the c
 
 `readme2tex` ensures that inline mathematical expressions
 are properly aligned with the rest of the text to give a more natural look to the document. For example,
-this equation <img alt="$\frac{dy}{dx}$" src="svgs/24a7d013bfb0af0838f476055fc6e1ef.png?invert_in_darkmode" align=middle width="14.297415pt" height="30.58869pt"/> is preprocessed so that it lines up at the correct baseline for the text.
+this formula <img alt="$\frac{dy}{dx}$" src="svgs/24a7d013bfb0af0838f476055fc6e1ef.png?invert_in_darkmode" align=middle width="14.297415pt" height="30.58869pt"/> is preprocessed so that it lines up at the correct baseline for the text.
 This is the one salient feature of this package compared to the others out there.
 
 ### Installation
@@ -41,7 +41,7 @@ cd readme2tex
 python setup.py develop
 ```
 
-To compile `INPUT.md` and render all of its equations, run
+To compile `INPUT.md` and render all of its formulas, run
 
 ```bash
 python -m readme2tex --output README.md INPUT.md
@@ -78,10 +78,10 @@ of what you can do in `readme2tex`.
 
 ### Examples:
 
-Here's a display level equation
+Here's a display level formula
 <p align="center"><img alt="$$&#10;\frac{n!}{k!(n-k)!} = {n \choose k}&#10;$$" src="svgs/32737e0a8d5a4cf32ba3ab1b74902ab7.png?invert_in_darkmode" align=middle width="127.89183pt" height="39.30498pt"/></p>
 
-The code that was used to render this equation is just
+The code that was used to render this formula is just
 
     $$
     \frac{n!}{k!(n-k)!} = {n \choose k}
@@ -89,7 +89,7 @@ The code that was used to render this equation is just
 
 <sub>*Note: you can escape \$ so that they don't render.*</sub>
 
-Here's an inline equation. 
+Here's an inline formula. 
 
 > It is well known that if <img alt="$ax^2 + bx + c =0$" src="svgs/162f63774d8a882cc15ae1301cfd8ac0.png?invert_in_darkmode" align=middle width="119.01186pt" height="26.70657pt"/>, then <img alt="$x = \frac{-b \pm \sqrt{b^2- 4ac}}{2a}$" src="svgs/584fa2612b78129d140fb208e9d76ae9.png?invert_in_darkmode" align=middle width="112.3584pt" height="33.20526pt"/>.
 
@@ -97,10 +97,10 @@ The code that was used to render this is:
 
     It is well known that if $ax^2 + bx + c = 0$, then $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$.
 
-Notice that the equations line up with the baseline of the text, even when the height of these two images are different.
+Notice that the formulas line up with the baseline of the text, even when the height of these two images are different.
 
-Sometimes, you might run into equations that are bottom-heavy, like <img alt="$x^2\sum\limits_{3^{n^{n^{n}}}}$" src="svgs/4cb4ead947a07837121937c807973436.png?invert_in_darkmode" align=middle width="47.639295pt" height="37.03194pt"/>. Here, `readme2tex`
-can compute the correct offset to align this equation to the baseline of your paragraph of text as well.
+Sometimes, you might run into formulas that are bottom-heavy, like <img alt="$x^2\sum\limits_{3^{n^{n^{n}}}}$" src="svgs/4cb4ead947a07837121937c807973436.png?invert_in_darkmode" align=middle width="47.639295pt" height="37.03194pt"/>. Here, `readme2tex`
+can compute the correct offset to align this formula to the baseline of your paragraph of text as well.
 
 #### Tikz (Courtesy of http://www.texample.net/)
 
@@ -157,7 +157,7 @@ In addition, you can specify other arguments to `render.py`, such as:
 * `--nocdn` Ticking this will use relative paths for the output images. Defaults to False.
 * `--htmlize` Ticking this will output a `md.html` file so you can preview what the output looks like. Defaults to False.
 * `--valign` Ticking this will use the `valign` trick (detailed below) instead. See the caveats section for tradeoffs.
-* `--rerender` Ticking this will force a recompilation of all <img alt="$\text{\LaTeX}$" src="svgs/c068b57af6b6fa949824f73dcb828783.png?invert_in_darkmode" align=middle width="42.05817pt" height="22.407pt"/> equations even if they are already cached.
+* `--rerender` Ticking this will force a recompilation of all <img alt="$\text{\LaTeX}$" src="svgs/c068b57af6b6fa949824f73dcb828783.png?invert_in_darkmode" align=middle width="42.05817pt" height="22.407pt"/> formulas even if they are already cached.
 * `--bustcache` Ticking this will ensure that Github renews its image cache. Github may sometimes take up to an hour for changed images to reappear. This is usually not necessary unless you've made stylistic changes.
 * `--add-git-hook` Ticking this will generate a post-commit hook for git that runs readme2tex with the rest of the specified arguments after each `git commit`.
 * `--pngtrick` Ticking this will generate `png` files instead of `svgs` for the formulas.
@@ -237,7 +237,7 @@ python setup.py develop
 
 #### How can you tell where the baseline of an image is?
 
-By prepending every inline equation with an anchor. During post-processing, we can isolate the anchor, which
+By prepending every inline formula with an anchor. During post-processing, we can isolate the anchor, which
 is fixed at the baseline, and crop it out. It's super clowny, but it does the job.
 
 #### Caveats
@@ -254,10 +254,10 @@ definition of the vertical "center" is different. In particular, for Chrome, Fir
 is the exact middle of the image. For IE and Edge however, the center is about 5 pixels (the height of a lower-case character)
 above the exact center. Since this looks great for non-IE browsers, and reasonably good on Edge, this is the default
 rendering method. The trick here is to pad either the top or the bottom of the image with extra spaces until the
-baseline of the equation is at the center. For most equations, this works great. However, if you have a tall equation,
+baseline of the formula is at the center. For most formulas, this works great. However, if you have a tall formula,
 like <img alt="$\frac{~}{\sum\limits_{x^{x^{x^{x}}}}^{x^{x^{x^{x}}}} f(x)}$" src="svgs/bdd0f9b91b7fff7fe5a2b1b7684a96ef.png?invert_in_darkmode" align=middle width="56.16666pt" height="71.68953pt"/>, you'll notice that there might be a lot
 of slack vertical spacing between these lines. If this is a deal-breaker for you, you can always try the `--valign True`
-mode. For most inline equations, this is usually a non-issue.
+mode. For most inline formulas, this is usually a non-issue.
 
 #### How to compile this document
 Make sure that you have the `tikz` and the `xcolor` packages installed locally.
