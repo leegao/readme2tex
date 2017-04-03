@@ -129,6 +129,7 @@ To save this script as your post-commit git hook, run
     parser.add_argument('--rerender', action='store_true', help="Even if equations have already been compiled, recompile them anyways.")
     parser.add_argument('--bustcache', action='store_true', help="Github has a latency before it will serve up the new asset. This option allows us to circumvent its caching.")
     parser.add_argument('--add-git-hook', action='store_true', help="Automatically generates a post-commit git hook with the rest of the arguments. In the future, git commit will automatically trigger readme2tex if the input file is changed.")
+    parser.add_argument('--png-trick', action='store_true', help="Convert output to png.")
     parser.add_argument('input', nargs='?', type=str, help="Same as --readme")
 
     args = parser.parse_args()
@@ -157,6 +158,7 @@ To save this script as your post-commit git hook, run
             args.htmlize,
             args.valign,
             args.rerender,
+            args.png_trick,
             args.bustcache)
     else:
 

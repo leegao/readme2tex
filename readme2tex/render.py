@@ -46,6 +46,13 @@ def rendertex(engine, string, packages, temp_dir, block):
     return svg, dvi, name
 
 
+def svg2png(svg):
+    # assume that 'cairosvg' exists
+    import cairosvg
+    cairosvg.svg2png(url=svg, write_to=svg[:-4] + '.png', dpi=250)
+    return svg[:-4] + '.png'
+
+
 def extract_equations(content):
     next = lambda n: (content.find('$', n), content.find(r'\begin', n))
     cursor = 0
@@ -119,6 +126,7 @@ def render(
         htmlize=False,
         use_valign=False,
         rerender=False,
+        pngtrick=False,
         bustcache=False):
     # look for $.$ or $$.$$
     if htmlize:
@@ -230,6 +238,8 @@ def render(
                 if dvi:
                     with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                         file.write(svg)
+                    if pngtrick:
+                        svg2png(os.path.join(svgdir, name + '.svg'))
         else:
             # git stash -q --keep-index
             stashed = False
@@ -253,6 +263,8 @@ def render(
                     if dvi:
                         with open(os.path.join(svgdir, name + '.svg'), 'w') as file:
                             file.write(svg)
+                        if pngtrick:
+                            svg2png(os.path.join(svgdir, name + '.svg'))
 
                 status = check_output(['git', 'status', '-s']).decode('utf-8').strip()
                 if status:
@@ -298,6 +310,10 @@ def render(
         svg_url = "{svgdir}/{name}.svg"
     else:
         svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+
+    if pngtrick:
+        svg_url = svg_url[:-4] + '.png'
+
     equations = sorted(equations, key=lambda x: (x[1], x[2]))[::-1]
     new = content
     for equation, start, end, block in equations:

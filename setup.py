@@ -23,6 +23,7 @@ setup(name='readme2tex',
       install_requires=[
           'markdown',
           'pygments',
+          'cairosvg==1.0.22',
       ],
       include_package_data=True,
       zip_safe=False)
