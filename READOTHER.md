@@ -322,6 +322,10 @@ export LIBGS=/usr/local/lib/libgs.dylib
 
 where `/usr/local/lib/libgs.dylib` is the location where `libgs.dylib` is installed.
 
+#### I'm seeing weird formatting from time to time.
+
+Make sure that if you have a `<p>...</p>` tag somewhere, you leave at least one blank line after the closing tag.
+
 #### I ran `--add-git-hook`, but the post-commit hook isn't running after committing.
 
 ```bash
