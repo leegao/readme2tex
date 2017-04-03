@@ -396,6 +396,8 @@ For the `png` relative mode, use
 
     python -m readme2tex --usepackage "tikz" --usepackage "xcolor" --output README.md --branch master --nocdn --pngtrick
 
+----------------------------------------
+
 \begin{tikzpicture}[scale=0.25, line join=bevel]
 % \a and \b are two macros defining characteristic
 % dimensions of the Penrose triangle.		
