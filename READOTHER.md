@@ -322,6 +322,12 @@ export LIBGS=/usr/local/lib/libgs.dylib
 
 where `/usr/local/lib/libgs.dylib` is the location where `libgs.dylib` is installed.
 
+#### I ran `--add-git-hook`, but the post-commit hook isn't running after committing.
+
+```bash
+chmod +x .git/hooks/post-commit
+```
+
 ### Technical Tricks
 
 #### How can you tell where the baseline of an image is?
