@@ -291,6 +291,37 @@ My usual workflow is to create a secondary branch just for the compiled svgs. Yo
 
 However, be careful with this command, since it will switch over to the `svgs` branch without any input from you.
 
+### Troubleshooting
+
+#### Tikz
+
+If your Tikz drawings don't show up, there's a good chance that you either don't have Ghostscript installed or
+`dvisvgm` isn't picking it up for whatever reason. This is most likely to happen on some installations of TexLive
+on OSX.
+
+Check to see if `ps` is included in the list when you run
+
+```bash
+$ dvisvgm -l
+bgcolor    background color special
+color      complete support of color specials
+dvisvgm    special set for embedding raw SVG snippets
+em         line drawing statements of the emTeX special set
+html       hyperref specials
+pdf        pdfTeX font map specials
+ps         dvips PostScript specials <<<
+tpic       TPIC specials
+```
+
+If not, try installing it (either `apt-get`, `yum`, or `brew`). Furthermore, if you are on OSX, make sure to add the
+following to your `~/.bash_profile`
+
+```bash
+export LIBGS=/usr/local/lib/libgs.dylib
+```
+
+where `/usr/local/lib/libgs.dylib` is the location where `libgs.dylib` is installed.
+
 ### Technical Tricks
 
 #### How can you tell where the baseline of an image is?
