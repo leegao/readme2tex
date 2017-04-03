@@ -302,7 +302,7 @@ on OSX.
 Check to see if `ps` is included in the list when you run
 
 ```bash
-$ dvisvgm -l
+# dvisvgm -l
 bgcolor    background color special
 color      complete support of color specials
 dvisvgm    special set for embedding raw SVG snippets
