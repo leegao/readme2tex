@@ -222,6 +222,14 @@ Make sure that if you have a `<p>...</p>` tag somewhere, you leave at least one 
 chmod +x .git/hooks/post-commit
 ```
 
+#### I raw `readme2tex` and got strange image srcs or got images that won't resolve
+
+Try running `readme2tex` with
+
+```bash
+python -m readme2tex ... --username GITHUB_USERNAME  --project PROJECT_NAME
+```
+
 #### I ran `readme2tex` and got a traceback somewhere.
 
 Unfortunately, this script still has a few kinks and bugs that I need to iron out. In the mean time, if the `pypi` releases
