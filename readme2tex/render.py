@@ -337,7 +337,7 @@ def render(
             quoteattr(equation),
             url,
             '?%s' % ('&'.join(tail)) if tail else '',
-            ('valign=%spx'%(-off * scale) if use_valign else 'align=middle'),
+            ('valign=%spx'%(-off * scale) if use_valign else 'align="middle"'),
             width,
             height)
         if block: img = '<p align="center">%s</p>' % img
