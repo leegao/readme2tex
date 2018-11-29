@@ -322,8 +322,6 @@ def render(
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
 
-        needs_inversion = not (equation.count('tikzpicture') and equation.count('fill='))
-
         scale = 1.65
         height = float(attributes['height'][:-2]) * scale
         width = float(attributes['width'][:-2]) * scale
@@ -331,8 +329,6 @@ def render(
         tail = []
         if bustcache:
             tail.append('%x' % random.randint(0, 1e12))
-        if needs_inversion:
-            tail.append('invert_in_darkmode')
         img = '<img alt=%s src="%s%s" %s width="%spt" height="%spt"/>' % (
             quoteattr(equation),
             url,
