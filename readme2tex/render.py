@@ -165,7 +165,7 @@ def render(
         try:
             if svg and not rerender:
                 xml = ET.fromstring(svg)
-                offset = float(xml.attrib['{http://github.com/leegao/readme2tex/}offset'])
+                offset = float(xml.attrib['{https://github.com/leegao/readme2tex/}offset'])
                 equation_map[(start, end)] = (svg, name, None, offset)
                 continue
         except Exception:
@@ -176,10 +176,10 @@ def render(
 
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
-        gfill = xml.find('{http://www.w3.org/2000/svg}g')
+        gfill = xml.find('{https://www.w3.org/2000/svg}g')
         gfill.set('fill-opacity', '0.9')
         if not block:
-            uses = gfill.findall('{http://www.w3.org/2000/svg}use')
+            uses = gfill.findall('{https://www.w3.org/2000/svg}use')
             use = uses[0]
             # compute baseline off of this dummy element
             x = use.attrib['x']
@@ -214,7 +214,7 @@ def render(
             baseline_offset = 0
 
         xml.set('readme2tex:offset', str(baseline_offset))
-        xml.set('xmlns:readme2tex', 'http://github.com/leegao/readme2tex/')
+        xml.set('xmlns:readme2tex', 'https://github.com/leegao/readme2tex/')
         svg = ET.tostring(xml).decode('utf-8')
 
         has_changes = True
