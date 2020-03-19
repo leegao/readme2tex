@@ -309,7 +309,7 @@ def render(
     if nocdn:
         svg_url = "{svgdir}/{name}.svg"
     else:
-        svg_url = "https://rawgit.com/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+        svg_url = "https://cdn.jsdelivr.net/gh/{user}/{project}@{branch}/{svgdir}/{name}.svg"
 
     if pngtrick:
         svg_url = svg_url[:-4] + '.png'
