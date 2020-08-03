@@ -131,6 +131,7 @@ To save this script as your post-commit git hook, run
     parser.add_argument('--add-git-hook', action='store_true', help="Automatically generates a post-commit git hook with the rest of the arguments. In the future, git commit will automatically trigger readme2tex if the input file is changed.")
     parser.add_argument('--pngtrick', action='store_true', help="Convert output to png.")
     parser.add_argument('input', nargs='?', type=str, help="Same as --readme")
+    parser.add_argument('--cdnurl', type=str, default='https://cdn.jsdelivr.net/gh', help="URL of the CDN to use. Defaults to https://cdn.jsdelivr.net/gh.")
 
     args = parser.parse_args()
     if args.input:
@@ -159,7 +160,8 @@ To save this script as your post-commit git hook, run
             args.valign,
             args.rerender,
             args.pngtrick,
-            args.bustcache)
+            args.bustcache,
+            args.cdnurl)
     else:
 
         # Move ourselves to the root of the current repository
