@@ -128,7 +128,8 @@ def render(
         rerender=False,
         pngtrick=False,
         bustcache=False,
-        cdnurl='https://cdn.jsdelivr.net/gh'):
+        cdnurl='https://cdn.jsdelivr.net/gh'.
+        cdnrefsep='@'):
     # look for $.$ or $$.$$
     if htmlize:
         nocdn = True
@@ -310,7 +311,7 @@ def render(
     if nocdn:
         svg_url = "{svgdir}/{name}.svg"
     else:
-        svg_url = "{cdnurl}/{user}/{project}/{branch}/{svgdir}/{name}.svg"
+        svg_url = "{cdnurl}/{user}/{project}{cdnrefsep}{branch}/{svgdir}/{name}.svg"
 
     if pngtrick:
         svg_url = svg_url[:-4] + '.png'
@@ -326,7 +327,7 @@ def render(
         scale = 1.65
         height = float(attributes['height'][:-2]) * scale
         width = float(attributes['width'][:-2]) * scale
-        url = svg_url.format(cdnurl=cdnurl, user=user, project=project, branch=branch, svgdir=svgdir, name=name)
+        url = svg_url.format(cdnurl=cdnurl, cdnrefsep=cdnrefsep, user=user, project=project, branch=branch, svgdir=svgdir, name=name)
         tail = []
         if bustcache:
             tail.append('%x' % random.randint(0, 1e12))

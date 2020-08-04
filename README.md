@@ -156,6 +156,7 @@ In addition, you can specify other arguments to `render.py`, such as:
 * `--project project` The current github project. This is also optional.
 * `--nocdn` Ticking this will use relative paths for the output images. Defaults to False.
 * `--cdnurl url` The CDN used for the images. Defaults to `https://cdn.jsdelivr.net/gh`.
+* `--cdnrefsep sep` The separator used by the CDN to separate project and reference. Defaults to `@`.
 * `--htmlize` Ticking this will output a `md.html` file so you can preview what the output looks like. Defaults to False.
 * `--valign` Ticking this will use the `valign` trick (detailed below) instead. See the caveats section for tradeoffs.
 * `--rerender` Ticking this will force a recompilation of all <img alt="$\text{\LaTeX}$" src="svgs/c068b57af6b6fa949824f73dcb828783.png?invert_in_darkmode" align=middle width="42.05817pt" height="22.407pt"/> formulas even if they are already cached.

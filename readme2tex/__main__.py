@@ -132,6 +132,7 @@ To save this script as your post-commit git hook, run
     parser.add_argument('--pngtrick', action='store_true', help="Convert output to png.")
     parser.add_argument('input', nargs='?', type=str, help="Same as --readme")
     parser.add_argument('--cdnurl', type=str, default='https://cdn.jsdelivr.net/gh', help="URL of the CDN to use. Defaults to https://cdn.jsdelivr.net/gh.")
+    parser.add_argument('--cdnrefsep', type=str, default='@', help="Separator between project and reference in CDN URL. Defaults to @.")
 
     args = parser.parse_args()
     if args.input:
@@ -161,7 +162,8 @@ To save this script as your post-commit git hook, run
             args.rerender,
             args.pngtrick,
             args.bustcache,
-            args.cdnurl)
+            args.cdnurl,
+            args.cdnrefsep)
     else:
 
         # Move ourselves to the root of the current repository
