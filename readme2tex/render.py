@@ -73,7 +73,7 @@ def extract_equations(content):
             for line, string in enumerate(lines):
                 cummulative += len(string) + 1
                 if dollar < cummulative: break
-            if lines[line].startswith('   '):
+            if lines[line].startswith('   ') and not re.match(r'^ *(?:-|[\d]+\.) ', lines[line]):
                 cursor = dollar + 2
                 continue
             if len(content) > dollar and content[dollar + 1] == '$':
