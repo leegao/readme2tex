@@ -6,7 +6,7 @@ import re
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
-from subprocess import check_output
+from subprocess import check_output, DEVNULL
 from xml.sax.saxutils import quoteattr
 import logging
 
@@ -59,8 +59,8 @@ def extract_equations(content):
     lines = [line for line in content.splitlines()]
     while True:
         dollar, begin = next(cursor)
-        if dollar is -1: dollar = '-1'
-        if begin is -1: begin = '-1'
+        if dollar == -1: dollar = '-1'
+        if begin == -1: begin = '-1'
         if dollar == '-1' and begin == '-1': break
         if dollar != '-1' and (begin == '-1' or dollar < begin):
             # found a $, see if it's $$
@@ -106,7 +106,7 @@ def extract_equations(content):
                 continue
             end_marker = '\\end' + match.group()
             end = content.find(end_marker, begin)
-            if end is -1:
+            if end == -1:
                 cursor = begin + 6
                 continue
             cursor = end + len(end_marker)
@@ -176,10 +176,10 @@ def render(
 
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
-        gfill = xml.find('{https://www.w3.org/2000/svg}g')
+        gfill = xml.find('{http://www.w3.org/2000/svg}g')
         gfill.set('fill-opacity', '0.9')
         if not block:
-            uses = gfill.findall('{https://www.w3.org/2000/svg}use')
+            uses = gfill.findall('{http://www.w3.org/2000/svg}use')
             use = uses[0]
             # compute baseline off of this dummy element
             x = use.attrib['x']
@@ -221,15 +221,18 @@ def render(
         equation_map[(start, end)] = (svg, name, dvi, baseline_offset)
 
     # git rev-parse --abbrev-ref HEAD
-    try:
-        old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD']).decode('utf-8').strip()
-    except:
-        if not nocdn:
+    if nocdn:
+        old_branch=""
+    else:
+        try:
+            old_branch = check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], stderr=DEVNULL).decode('utf-8').strip()
+        except:
             logging.error("Not in a git repository, please enable --nocdn")
-        return exit(1)
+            return exit(1)
+
 
     if has_changes:
-        if not branch or branch == old_branch:
+        if nocdn or (not branch or branch == old_branch):
             branch = old_branch
             if not os.path.exists(svgdir):
                 os.makedirs(svgdir)
@@ -295,20 +298,20 @@ def render(
                 check_output(['git', 'stash', 'pop', '-q'])
 
     # Make replacements
-    if not user or not project:
-        try:
-            # git remote get-url origin
-            giturl = check_output(['git', 'remote', '-v']).strip().decode('utf-8').splitlines()[0]
-            start = giturl.find('.com/') + 5
-            userproj = giturl[start:]
-            end = userproj.find('.git')
-            user, project = userproj[:end].split('/')
-        except:
-            raise Exception("Please specify your github --username and --project.")
-
     if nocdn:
         svg_url = "{svgdir}/{name}.svg"
     else:
+        if (not user or not project):
+            try:
+                # git remote get-url origin
+                giturl = check_output(['git', 'remote', '-v']).strip().decode('utf-8').splitlines()[0]
+                start = giturl.find('.com/') + 5
+                userproj = giturl[start:]
+                end = userproj.find('.git')
+                user, project = userproj[:end].split('/')
+            except:
+                raise Exception("Please specify your github --username and --project.")
+
         svg_url = "https://cdn.jsdelivr.net/gh/{user}/{project}@{branch}/{svgdir}/{name}.svg"
 
     if pngtrick:
@@ -323,14 +326,14 @@ def render(
         attributes = xml.attrib
 
         scale = 1.65
-        height = float(attributes['height'][:-2]) * scale
-        width = float(attributes['width'][:-2]) * scale
+        height = round(float(attributes['height'][:-2]) * scale)
+        width = round(float(attributes['width'][:-2]) * scale)
         url = svg_url.format(user=user, project=project, branch=branch, svgdir=svgdir, name=name)
         tail = []
         if bustcache:
             tail.append('%x' % random.randint(0, 1e12))
         img = '<img alt=%s src="%s%s" %s width="%spt" height="%spt"/>' % (
-            quoteattr(equation),
+            '"LaTeX"',  # quoteattr(equation),
             url,
             '?%s' % ('&'.join(tail)) if tail else '',
             ('valign=%spx'%(-off * scale) if use_valign else 'align="middle"'),
