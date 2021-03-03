@@ -59,8 +59,8 @@ def extract_equations(content):
     lines = [line for line in content.splitlines()]
     while True:
         dollar, begin = next(cursor)
-        if dollar is -1: dollar = '-1'
-        if begin is -1: begin = '-1'
+        if dollar == -1: dollar = '-1'
+        if begin == -1: begin = '-1'
         if dollar == '-1' and begin == '-1': break
         if dollar != '-1' and (begin == '-1' or dollar < begin):
             # found a $, see if it's $$
@@ -106,7 +106,7 @@ def extract_equations(content):
                 continue
             end_marker = '\\end' + match.group()
             end = content.find(end_marker, begin)
-            if end is -1:
+            if end == -1:
                 cursor = begin + 6
                 continue
             cursor = end + len(end_marker)
@@ -176,10 +176,10 @@ def render(
 
         xml = (ET.fromstring(svg))
         attributes = xml.attrib
-        gfill = xml.find('{https://www.w3.org/2000/svg}g')
+        gfill = xml.find('{http://www.w3.org/2000/svg}g')
         gfill.set('fill-opacity', '0.9')
         if not block:
-            uses = gfill.findall('{https://www.w3.org/2000/svg}use')
+            uses = gfill.findall('{http://www.w3.org/2000/svg}use')
             use = uses[0]
             # compute baseline off of this dummy element
             x = use.attrib['x']
